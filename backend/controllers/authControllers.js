@@ -180,3 +180,43 @@ export const resetPassword = async (req, res) => {
     }
 }
 
+
+//handel google auth
+export const googleAuth = async (req, res) => {
+    try {
+        const { fullName, email, mobile, role } = req.body;
+        let user = await User.findOne({ email });
+
+        // if !user then it means we have to create the user so we save the dada in our database then create token (Signup complete)
+        if (!user) {
+            user = new User({
+                fullName,
+                email,
+                mobile,
+                role
+            })
+            await user.save();
+        }
+
+        // if user already exist means we just create token (Signin complete)
+        const token = genToken(user._id);
+        res.cookie("token", token, {
+            secure: false,
+            sameSite: "strict",
+            maxAge: 7 * 24 * 60 * 60 * 1000,  //7 day in milisecond
+            httpOnly: true
+        })
+
+        return res.status(201).json({
+            _id: user._id,
+            fullName: user.fullName,
+            email: user.email,
+            role: user.role,
+            message: "successfully perform google auth"
+        });
+    } catch (error) {
+        console.log(error); // Log error to console so you can see it
+        return res.status(500).json({ message: "Error in googleAuth logic" });
+    }
+}
+

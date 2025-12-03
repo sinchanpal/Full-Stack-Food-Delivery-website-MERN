@@ -1,9 +1,14 @@
 import axios from 'axios';
+import { GoogleAIBackend } from 'firebase/ai';
+import { GoogleAuthProvider, signInWithPopup } from 'firebase/auth';
+
 import React, { useState } from 'react'
 import { FaEye } from "react-icons/fa";
 import { FaEyeSlash } from "react-icons/fa";
 import { FcGoogle } from "react-icons/fc";
 import { useNavigate } from 'react-router-dom';
+import { auth } from '../../utils/firebase';
+import { ClipLoader } from 'react-spinners';
 
 const SignUp = () => {
 
@@ -23,9 +28,13 @@ const SignUp = () => {
     const [email, setEmail] = useState("");
     const [password, setPassword] = useState("");
     const [mobile, setMobile] = useState("");
+    const [err, SetErr] = useState('');
+    const [loading, setLoading] = useState(false);
 
 
     const handelSignUp = async () => {
+
+        setLoading(true);
         try {
             const result = await axios.post(`${serverUrl}/api/auth/signup`, {
                 fullName, email, password, mobile, role
@@ -37,9 +46,48 @@ const SignUp = () => {
             setPassword("");
             setMobile("");
             setRole("user");
+            SetErr("");
+            setLoading(false);
         } catch (error) {
-            console.log("Error while Signup : ",error)
+            SetErr(error?.response?.data?.message);
+            setLoading(false);
+            console.log("Error while Signup : ", err);
         }
+    }
+
+
+    const handelGoogleAuth = async () => {
+
+        if (!mobile) {
+            return SetErr('Mobile number is required!');
+        }
+        if (!role) {
+            return SetErr('Role is required!');
+        }
+        const provider = new GoogleAuthProvider();
+        const result = await signInWithPopup(auth, provider);
+        console.log(result);
+
+        try {
+
+            if (result) {
+
+                const data = await axios.post(`${serverUrl}/api/auth/google-auth`, {
+                    fullName: result.user.displayName,
+                    email: result.user.email,
+                    mobile,
+                    role
+                }, { withCredentials: true })
+
+                console.log('signup with google successfull..', data);
+            }
+
+
+
+        } catch (error) {
+            console.log('Error in handelGoogleAuth (Signup Page)', error);
+        }
+
     }
 
 
@@ -52,13 +100,13 @@ const SignUp = () => {
                 {/* full-name input */}
                 <div className='mb-4'>
                     <label htmlFor='fullname' className='block text-gray-700 font-medium mb-1'>Full Name</label>
-                    <input type='text' className='w-full border rounded-lg px-3 py-2 focus:outline-none focus:border-orange-500' placeholder='Enter your full name' style={{ border: `1px solid ${borderColor}` }} value={fullName} onChange={(e) => setFullName(e.target.value)} />
+                    <input type='text' className='w-full border rounded-lg px-3 py-2 focus:outline-none focus:border-orange-500' placeholder='Enter your full name' style={{ border: `1px solid ${borderColor}` }} value={fullName} onChange={(e) => setFullName(e.target.value)} required />
                 </div>
 
                 {/* email input */}
                 <div className='mb-4'>
                     <label htmlFor='email' className='block text-gray-700 font-medium mb-1'>Email</label>
-                    <input type='email' className='w-full border rounded-lg px-3 py-2 focus:outline-none focus:border-orange-500' placeholder='Enter your email' style={{ border: `1px solid ${borderColor}` }} value={email} onChange={(e) => setEmail(e.target.value)} />
+                    <input type='email' className='w-full border rounded-lg px-3 py-2 focus:outline-none focus:border-orange-500' placeholder='Enter your email' style={{ border: `1px solid ${borderColor}` }} value={email} onChange={(e) => setEmail(e.target.value)} required />
                 </div>
 
 
@@ -67,7 +115,7 @@ const SignUp = () => {
                     <label htmlFor='password' className='block text-gray-700 font-medium mb-1'>Password</label>
 
                     <div className='relative'>
-                        <input type={showPassword ? "text" : "password"} className='w-full border rounded-lg px-3 py-2 focus:outline-none focus:border-orange-500' placeholder='Enter your password' style={{ border: `1px solid ${borderColor}` }} value={password} onChange={(e) => setPassword(e.target.value)} />
+                        <input type={showPassword ? "text" : "password"} className='w-full border rounded-lg px-3 py-2 focus:outline-none focus:border-orange-500' placeholder='Enter your password' style={{ border: `1px solid ${borderColor}` }} value={password} onChange={(e) => setPassword(e.target.value)} required />
                         <button className='absolute right-3 cursor-pointer top-3.5 text-gray-500' onClick={() => setShowPassword(prev => !prev)}>{!showPassword ? <FaEye /> : <FaEyeSlash />}</button>
                     </div>
                 </div>
@@ -75,7 +123,7 @@ const SignUp = () => {
                 {/* mobile input */}
                 <div className='mb-4'>
                     <label htmlFor='mobile' className='block text-gray-700 font-medium mb-1'>Mobile No</label>
-                    <input type='text' className='w-full border rounded-lg px-3 py-2 focus:outline-none focus:border-orange-500' placeholder='Enter your mobile number' style={{ border: `1px solid ${borderColor}` }} value={mobile} onChange={(e) => setMobile(e.target.value)} />
+                    <input type='text' className='w-full border rounded-lg px-3 py-2 focus:outline-none focus:border-orange-500' placeholder='Enter your mobile number' style={{ border: `1px solid ${borderColor}` }} value={mobile} onChange={(e) => setMobile(e.target.value)} required />
                 </div>
 
 
@@ -88,7 +136,7 @@ const SignUp = () => {
                             <button className='flex-1 border rounded-lg px-3 py-2 text-center font-medium transition-colors cursor-pointer'
                                 key={index}
                                 onClick={() => setRole(currRole)}
-                                style={role == currRole ? { backgroundColor: primaryColor, color: 'white' } : { border: `1px solid ${primaryColor}`, color: primaryColor }}>
+                                style={role == currRole ? { backgroundColor: primaryColor, color: 'white' } : { border: `1px solid ${primaryColor}`, color: primaryColor }} required>
                                 {currRole}
                             </button>
                         ))}
@@ -96,14 +144,18 @@ const SignUp = () => {
                 </div>
 
                 {/* SignUp Button */}
-                <button className={`w-full font-semibold py-2 rounded-lg transition duration-200 bg-[#ff4d2d] hover:bg-[#e64323] text-white cursor-pointer`} onClick={handelSignUp}>
-                    Sign Up
+                <button className={`w-full font-semibold py-2 rounded-lg transition duration-200 bg-[#ff4d2d] hover:bg-[#e64323] text-white cursor-pointer`} onClick={handelSignUp} disabled={loading} >
+
+                    {loading ? <ClipLoader size={20} color="white"/> : 'Sign Up'}
+
                 </button>
+
+                {err && <p className='text-red-600 text-center m-1.5 font-bold'>{`*${err}`}</p>}
 
                 <div className='w-full mt-1 text-center font-medium'>Or</div>
 
                 {/* SignUp with google */}
-                <button className='w-full mt-1 flex items-center justify-center gap-2 border rounded-lg px-4 py-2 transition duration-200 border-gray-400 hover:bg-gray-200 cursor-pointer'>
+                <button className='w-full mt-1 flex items-center justify-center gap-2 border rounded-lg px-4 py-2 transition duration-200 border-gray-400 hover:bg-gray-200 cursor-pointer' onClick={handelGoogleAuth}>
                     <FcGoogle size={20} />
                     <span>Sign Up with Google</span>
                 </button>

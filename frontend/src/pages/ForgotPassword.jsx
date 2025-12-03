@@ -2,6 +2,7 @@ import axios from 'axios';
 import React, { useState } from 'react'
 import { IoArrowBack } from "react-icons/io5";
 import { useNavigate } from 'react-router-dom';
+import { ClipLoader } from 'react-spinners';
 
 const ForgotPassword = () => {
 
@@ -19,28 +20,41 @@ const ForgotPassword = () => {
     const [otp, setOtp] = useState("");
     const [newPassword, setNewPassword] = useState("");
     const [confirmPassword, setConfirmPassword] = useState("");
+    const [err, SetErr] = useState('');
+    const [loading, setLoading] = useState(false);
 
     const handelSendOtp = async () => {
+
+        setLoading(true);
         try {
             const result = await axios.post(`${serverUrl}/api/auth/send-otp`, {
                 email
             }, { withCredentials: true });
             console.log("Send otp result: ", result);
+            SetErr("");
+            setLoading(false);
             setStep(2);
         } catch (error) {
+            SetErr(error?.response?.data?.message);
+            setLoading(false);
             console.log("Error on handelSendOtp function : ", error);
         }
     }
 
 
     const handelvarifyOtp = async () => {
+        setLoading(true);
         try {
             const result = await axios.post(`${serverUrl}/api/auth/verify-otp`, {
                 email, otp
             }, { withCredentials: true });
             console.log("Verify otp result: ", result);
+            SetErr("");
+            setLoading(false);
             setStep(3);
         } catch (error) {
+            SetErr(error?.response?.data?.message);
+            setLoading(false);
             console.log("Error on handelvarifyOtp function : ", error);
         }
     }
@@ -48,9 +62,12 @@ const ForgotPassword = () => {
 
     const handelresetPassword = async () => {
 
+        setLoading(true);
+
         if (newPassword != confirmPassword) {
 
-            console.log("new password and confirm password must be same.");
+            SetErr("new password and confirm password must be same.");
+            setLoading(false);
             return null;
         }
         try {
@@ -58,8 +75,12 @@ const ForgotPassword = () => {
                 email, newPassword
             }, { withCredentials: true });
             console.log("Reset Password result: ", result);
+            SetErr("");
+            setLoading(false);
             navigate("/signin");
         } catch (error) {
+            SetErr(error?.response?.data?.message);
+            setLoading(false);
             console.log("Error on handelresetPassword function : ", error);
         }
     }
@@ -86,9 +107,12 @@ const ForgotPassword = () => {
 
                     </div>
 
-                    <button className={`w-full font-semibold py-2 rounded-lg transition duration-200 bg-[#ff4d2d] hover:bg-[#e64323] text-white cursor-pointer`} onClick={handelSendOtp}>
-                        Send OTP
+                    <button className={`w-full font-semibold py-2 rounded-lg transition duration-200 bg-[#ff4d2d] hover:bg-[#e64323] text-white cursor-pointer`} onClick={handelSendOtp} disabled={loading}>
+
+                        {loading ? <ClipLoader size={20} color="white"/> : 'Send OTP'}
+
                     </button>
+                    {err && <p className='text-red-600 text-center m-1.5 font-bold'>{`*${err}`}</p>}
                 </div>
 
 
@@ -106,9 +130,12 @@ const ForgotPassword = () => {
 
                     </div>
 
-                    <button className={`w-full font-semibold py-2 rounded-lg transition duration-200 bg-[#ff4d2d] hover:bg-[#e64323] text-white cursor-pointer`} onClick={handelvarifyOtp}>
-                        Verify
+                    <button className={`w-full font-semibold py-2 rounded-lg transition duration-200 bg-[#ff4d2d] hover:bg-[#e64323] text-white cursor-pointer`} onClick={handelvarifyOtp} disabled={loading}>
+
+                        {loading ? <ClipLoader size={20} color="white"/> : 'Verify'}
+
                     </button>
+                    {err && <p className='text-red-600 text-center m-1.5 font-bold'>{`*${err}`}</p>}
                 </div>
 
 
@@ -131,9 +158,12 @@ const ForgotPassword = () => {
 
                     </div>
 
-                    <button className={`w-full font-semibold py-2 rounded-lg transition duration-200 bg-[#ff4d2d] hover:bg-[#e64323] text-white cursor-pointer`} onClick={handelresetPassword}>
-                        Change Password
+                    <button className={`w-full font-semibold py-2 rounded-lg transition duration-200 bg-[#ff4d2d] hover:bg-[#e64323] text-white cursor-pointer`} onClick={handelresetPassword} disabled={loading}>
+
+                        {loading ? <ClipLoader size={20} color="white"/> : 'Change Password'}
+
                     </button>
+                    {err && <p className='text-red-600 text-center m-1.5 font-bold'>{`*${err}`}</p>}
                 </div>
 
 
