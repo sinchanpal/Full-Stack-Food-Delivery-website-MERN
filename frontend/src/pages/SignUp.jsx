@@ -9,11 +9,15 @@ import { FcGoogle } from "react-icons/fc";
 import { useNavigate } from 'react-router-dom';
 import { auth } from '../../utils/firebase';
 import { ClipLoader } from 'react-spinners';
+import { serverUrl } from '../App';
+import { useDispatch } from 'react-redux';
+import { setUserData } from '../redux/userSlice';
 
 const SignUp = () => {
 
-    const serverUrl = "http://localhost:8000"
+    
     const navigate = useNavigate();
+    const dispatch = useDispatch();
 
     //some usefull colors
     const primaryColor = "#ff4d2d";
@@ -40,7 +44,8 @@ const SignUp = () => {
                 fullName, email, password, mobile, role
             }, { withCredentials: true });
 
-            console.log(result);
+            dispatch(setUserData(result.data));
+            console.log(result.data);
             setFullName("");
             setEmail("");
             setPassword("");
@@ -72,14 +77,15 @@ const SignUp = () => {
 
             if (result) {
 
-                const data = await axios.post(`${serverUrl}/api/auth/google-auth`, {
+                const userdata = await axios.post(`${serverUrl}/api/auth/google-auth`, {
                     fullName: result.user.displayName,
                     email: result.user.email,
                     mobile,
                     role
                 }, { withCredentials: true })
 
-                console.log('signup with google successfull..', data);
+                dispatch(setUserData(userdata.data)); //!<----------------
+                console.log('signup with google successfull..', userdata.data);
             }
 
 

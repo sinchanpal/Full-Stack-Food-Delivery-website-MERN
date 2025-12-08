@@ -3,10 +3,11 @@ import React, { useState } from 'react'
 import { IoArrowBack } from "react-icons/io5";
 import { useNavigate } from 'react-router-dom';
 import { ClipLoader } from 'react-spinners';
+import { serverUrl } from '../App';
 
 const ForgotPassword = () => {
 
-    const serverUrl = "http://localhost:8000";
+
 
     //some usefull colors
     const primaryColor = "#ff4d2d";
@@ -109,7 +110,7 @@ const ForgotPassword = () => {
 
                     <button className={`w-full font-semibold py-2 rounded-lg transition duration-200 bg-[#ff4d2d] hover:bg-[#e64323] text-white cursor-pointer`} onClick={handelSendOtp} disabled={loading}>
 
-                        {loading ? <ClipLoader size={20} color="white"/> : 'Send OTP'}
+                        {loading ? <ClipLoader size={20} color="white" /> : 'Send OTP'}
 
                     </button>
                     {err && <p className='text-red-600 text-center m-1.5 font-bold'>{`*${err}`}</p>}
@@ -132,7 +133,7 @@ const ForgotPassword = () => {
 
                     <button className={`w-full font-semibold py-2 rounded-lg transition duration-200 bg-[#ff4d2d] hover:bg-[#e64323] text-white cursor-pointer`} onClick={handelvarifyOtp} disabled={loading}>
 
-                        {loading ? <ClipLoader size={20} color="white"/> : 'Verify'}
+                        {loading ? <ClipLoader size={20} color="white" /> : 'Verify'}
 
                     </button>
                     {err && <p className='text-red-600 text-center m-1.5 font-bold'>{`*${err}`}</p>}
@@ -160,7 +161,7 @@ const ForgotPassword = () => {
 
                     <button className={`w-full font-semibold py-2 rounded-lg transition duration-200 bg-[#ff4d2d] hover:bg-[#e64323] text-white cursor-pointer`} onClick={handelresetPassword} disabled={loading}>
 
-                        {loading ? <ClipLoader size={20} color="white"/> : 'Change Password'}
+                        {loading ? <ClipLoader size={20} color="white" /> : 'Change Password'}
 
                     </button>
                     {err && <p className='text-red-600 text-center m-1.5 font-bold'>{`*${err}`}</p>}

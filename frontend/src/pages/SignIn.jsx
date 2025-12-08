@@ -7,11 +7,15 @@ import { FcGoogle } from "react-icons/fc";
 import { useNavigate } from 'react-router-dom';
 import { auth } from '../../utils/firebase';
 import { ClipLoader } from 'react-spinners';
+import { serverUrl } from '../App';
+import { useDispatch } from 'react-redux';
+import { setUserData } from '../redux/userSlice';
 
 const SignIn = () => {
 
-  const serverUrl = "http://localhost:8000"
+
   const navigate = useNavigate();
+  const dispatch = useDispatch();
 
   //some usefull colors
   const primaryColor = "#ff4d2d";
@@ -37,7 +41,7 @@ const SignIn = () => {
       }, { withCredentials: true });
 
       console.log("Successfully Sign In . ", result);
-
+      dispatch(setUserData(result.data));
       setEmail("");
       setPassword("");
       SetErr("");
@@ -61,13 +65,14 @@ const SignIn = () => {
 
       if (result) {
 
-        const data = await axios.post(`${serverUrl}/api/auth/google-auth`, {
+        const userdata = await axios.post(`${serverUrl}/api/auth/google-auth`, {
 
           email: result.user.email,
 
         }, { withCredentials: true })
 
-        console.log('signin with google successfull..', data);
+        dispatch(setUserData(userdata.data))
+        console.log('signin with google successfull..', userdata.data);
       }
 
 
@@ -113,7 +118,7 @@ const SignIn = () => {
         {/* SignIn Button */}
         <button className={`w-full font-semibold py-2 rounded-lg transition duration-200 bg-[#ff4d2d] hover:bg-[#e64323] text-white cursor-pointer`} onClick={handelSignIn} disabled={loading}>
 
-          {loading ? <ClipLoader size={20} color="white"/> : 'Sign In'}
+          {loading ? <ClipLoader size={20} color="white" /> : 'Sign In'}
 
         </button>
 
