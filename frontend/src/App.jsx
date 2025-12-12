@@ -6,6 +6,7 @@ import ForgotPassword from './pages/ForgotPassword'
 import UseGetCurrUser from './hooks/UseGetCurrUser'
 import { useSelector } from 'react-redux'
 import Home from './pages/Home'
+import UseGetCity from './hooks/UseGetCity'
 
 export const serverUrl = "http://localhost:8000"
 
@@ -13,7 +14,10 @@ export const serverUrl = "http://localhost:8000"
 function App() {
 
 
+  //afetr initializing our app first we call this function to get some information
   UseGetCurrUser();
+  UseGetCity();
+
   const { userData } = useSelector(state => state.user)
   return (
     <>
