@@ -5,6 +5,10 @@ import connectDB from './config/db.js';
 import cookieParser from 'cookie-parser';
 import authRouter from './routes/authRoutes.js';
 import userRouter from './routes/userRoutes.js';
+import shopRouter from './routes/shopRoutes.js';
+import itemRouter from './routes/itemsRoutes.js';
+
+
 
 // 1. App Config
 dotenv.config();
@@ -20,8 +24,10 @@ app.use(express.json());
 app.use(cookieParser());
 
 
-app.use("/api/auth", authRouter)
-app.use("/api/user",userRouter)
+app.use("/api/auth", authRouter);
+app.use("/api/user", userRouter);
+app.use("/api/shop", shopRouter);
+app.use("/api/item", itemRouter);
 
 
 

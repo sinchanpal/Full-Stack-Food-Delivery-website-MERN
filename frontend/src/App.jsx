@@ -7,6 +7,10 @@ import UseGetCurrUser from './hooks/UseGetCurrUser'
 import { useSelector } from 'react-redux'
 import Home from './pages/Home'
 import UseGetCity from './hooks/UseGetCity'
+import UseGetUserShop from './hooks/UseGetUserShop'
+import CreateEditShop from './pages/CreateEditShop'
+import AddItem from './pages/AddItem'
+import EditItem from './pages/EditItem'
 
 export const serverUrl = "http://localhost:8000"
 
@@ -14,11 +18,13 @@ export const serverUrl = "http://localhost:8000"
 function App() {
 
 
-  //afetr initializing our app first we call this function to get some information
+  //?afetr initializing our app first we call this function to get some information
   UseGetCurrUser();
   UseGetCity();
+  UseGetUserShop();
 
   const { userData } = useSelector(state => state.user)
+
   return (
     <>
 
@@ -31,6 +37,9 @@ function App() {
         {/* //? if we have userData then why show SignUp Or SignIn page navigate to Home page directly */}
         <Route path='/signin' element={!userData ? <SignIn /> : <Navigate to={"/"} />} />
         <Route path='/forgot-password' element={<ForgotPassword />} />
+        <Route path='/create-edit-shop' element={<CreateEditShop />} />
+        <Route path='/add-item' element={<AddItem />} />
+        <Route path='/edit-item/:itemId' element={<EditItem/>} />
       </Routes>
     </>
   )

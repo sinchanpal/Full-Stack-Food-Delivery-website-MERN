@@ -32,5 +32,5 @@ const shopSchema = new mongoose.Schema({
     }]  //this is a array cause multiple Items can sell by a particular shop
 }, { timestamps: true });
 
-const Shop = mongoose.Model("Shop", shopSchema);
+const Shop = mongoose.model("Shop", shopSchema);
 export default Shop;

@@ -1,7 +1,7 @@
 import axios from 'axios';
 import React, { useEffect } from 'react'
 import { useDispatch, useSelector } from 'react-redux';
-import { setUserCity } from '../redux/userSlice';
+import { setUserAddress, setUserCity, setUserState } from '../redux/userSlice';
 
 const UseGetCity = () => {
 
@@ -22,9 +22,13 @@ const UseGetCity = () => {
                 // console.log(result);
                 // console.log(result.data.results[0].city);
                 let city = result?.data?.results[0]?.city;
-               
-                //we store our city to userCity in redux store
+                let state = result?.data?.results[0]?.state;
+                let address = result?.data?.results[0]?.address_line2;
+
+                //we store our city to userCity and state to userState and address to userAddress in redux store
                 dispatch(setUserCity(city));
+                dispatch(setUserState(state));
+                dispatch(setUserAddress(address));
 
             })
         }, [userData]) //means this useEffect is called on userData change
