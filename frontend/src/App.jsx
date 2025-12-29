@@ -11,6 +11,7 @@ import UseGetUserShop from './hooks/UseGetUserShop'
 import CreateEditShop from './pages/CreateEditShop'
 import AddItem from './pages/AddItem'
 import EditItem from './pages/EditItem'
+import UseGetAllShopsInCurrCity from './hooks/UseGetAllShopsInCurrCity'
 
 export const serverUrl = "http://localhost:8000"
 
@@ -22,6 +23,7 @@ function App() {
   UseGetCurrUser();
   UseGetCity();
   UseGetUserShop();
+  UseGetAllShopsInCurrCity();
 
   const { userData } = useSelector(state => state.user)
 

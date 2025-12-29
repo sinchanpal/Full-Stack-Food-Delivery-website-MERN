@@ -73,7 +73,7 @@ const OwnerDashboard = () => {
           {/* If there are items, show the items list */}
           {myShopData.items.length > 0 &&
             <div className='flex flex-col items-center gap-4 w-full max-w-3xl'>
-              {myShopData.items.map((item, index) => {
+              {myShopData?.items.map((item, index) => {
                 return <OwnerItemCard data={item} key={index} />
               })}
             </div>}

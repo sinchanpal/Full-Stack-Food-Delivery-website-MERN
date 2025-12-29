@@ -67,3 +67,23 @@ export const getMyShop = async (req, res) => {
         return res.status(500).json({ message: "Error in getMyShop controller !", error });
     }
 }
+
+
+
+//get all shops by current user city
+export const getAllShopsByCity = async (req, res) => {
+
+    const {currCity} = req.params;
+    try {
+        const shops = await Shop.find({ city: currCity }).populate('items');
+        
+
+        if (!shops || shops.length === 0) {
+            return res.status(400).json({ message: "No Shops found in your city !" });
+        }
+
+        return res.status(200).json(shops);
+    } catch (error) {
+        return res.status(500).json({ message: "Error in getAllShopsByCity controller ! in shopControllers.js !", error });
+    }
+}
