@@ -12,8 +12,8 @@ const UseGetCurrUser = () => {
 
             try {
                 const result = await axios.get(`${serverUrl}/api/user/current-user`, { withCredentials: true })
-                dispatch(setUserData(result.data.currUser));
-                console.log(result.data.currUser)
+                dispatch(setUserData(result?.data?.currUser));
+                console.log(result?.data?.currUser)
             } catch (error) {
                 console.log("Error in UseGetCurrUser",error);
             }

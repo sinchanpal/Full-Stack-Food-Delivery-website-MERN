@@ -43,6 +43,10 @@ const itemSchema = new mongoose.Schema({
             "non veg"
         ],
         required: true
+    },
+    rating: {
+        average: { type: Number, default: 0 }, //average rating of the number of ratings
+        count: { type: Number, default: 0 }  //total number of ratings recieved for this item
     }
 })
 

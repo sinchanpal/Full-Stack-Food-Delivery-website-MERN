@@ -55,8 +55,8 @@ export const createAndEditShop = async (req, res) => {
 export const getMyShop = async (req, res) => {
     try {
         const shop = await Shop.findOne({ owner: req.userId });
-        await shop.populate("owner");
-        await shop.populate('items');
+        await shop?.populate("owner");
+        await shop?.populate('items');
 
         if (!shop) {
             return res.status(400).json({ message: "Error shop not found ! on getMyShop controller" });
@@ -75,7 +75,8 @@ export const getAllShopsByCity = async (req, res) => {
 
     const {currCity} = req.params;
     try {
-        const shops = await Shop.find({ city: currCity }).populate('items');
+        // { $regex: currCity, $options: "i" } tells MongoDB to ignore capital/small letters
+        const shops = await Shop.find({ city: { $regex: currCity.trim(), $options: "i" } }).populate('items');
         
 
         if (!shops || shops.length === 0) {

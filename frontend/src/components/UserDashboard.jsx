@@ -5,12 +5,18 @@ import CategoryCard from './CategoryCard'
 import { FaCircleArrowLeft } from "react-icons/fa6";
 import { FaCircleArrowRight } from "react-icons/fa6";
 import { useSelector } from 'react-redux';
+import ItemCard from './ItemCard';
 
 
 const UserDashboard = () => {
 
     //get all shops in current city from redux store
     const { allShopsInUserCity } = useSelector(state => state.user);
+
+    //get all Items in current city from redux store
+    const { allItemsInUserCity } = useSelector(state => state.user);
+
+    //get user city from redux store
     const { userCity } = useSelector(state => state.user);
 
 
@@ -182,6 +188,19 @@ const UserDashboard = () => {
                         </button>)}
 
 
+                </div>
+            </div>
+
+            {/* All Items in current user city shops */}
+            <div className='w-full max-w-5xl flex flex-col gap-5 items-start px-5 md:px-0'>
+                <h1 className='text-gray-800 text-2xl sm:text-3xl'>Suggested Items In Your City {userCity}</h1>
+
+                <div className='w-full h-auto flex flex-wrap gap-5 justify-center'>
+                        {allItemsInUserCity?.map((item,index)=>{
+                            return (
+                                <ItemCard item={item} key={index}/>
+                            )
+                        })}
                 </div>
             </div>
         </div>

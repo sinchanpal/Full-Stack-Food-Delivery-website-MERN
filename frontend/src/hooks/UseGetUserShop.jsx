@@ -15,8 +15,8 @@ const UseGetUserShop = () => {
 
             try {
                 const result = await axios.get(`${serverUrl}/api/shop/get-my-shop`, { withCredentials: true })
-                dispatch(setMyShopData(result.data));
-                console.log(result.data);
+                dispatch(setMyShopData(result?.data)); //!
+                console.log(result?.data);
             } catch (error) {
                 console.log("Error in UseGetUserShop", error);
             }

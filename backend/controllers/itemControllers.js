@@ -115,3 +115,28 @@ export const deleteItem = async (req, res) => { //Todo I have to check this dele
         return res.status(500).json({ message: "Error in deleteItem function in itemControllers.js ! ", error });
     }
 }
+
+
+//get all items from current user city shops
+export const getAllItemsByCity = async (req, res) => {
+
+    const { currCity } = req.params;
+    try {
+        const shops = await Shop.find({ city: currCity });
+
+        if (!shops || shops.length === 0) {
+            return res.status(400).json({ message: "No Shops found in your City !" });
+        }
+
+        const allShopIds = shops?.map((shop) => shop._id);
+        const allItems = await Item.find({ shop: { $in: allShopIds } }); //we get all items whose shop id is in allShopIds array 
+
+        if (!allItems) {
+            return res.status(400).json({ message: "No Items found in your City !" });
+        }
+
+        return res.status(200).json(allItems);
+    } catch (error) {
+        return res.status(500).json({ message: "Error in getAllItemsByCity function in itemControllers.js !", error });
+    }
+}

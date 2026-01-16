@@ -31,7 +31,7 @@ const UseGetCity = () => {
                 dispatch(setUserAddress(address));
 
             })
-        }, [userData]) //means this useEffect is called on userData change
+        }, [userData,dispatch]) //means this useEffect is called on userData change
     )
 }
 

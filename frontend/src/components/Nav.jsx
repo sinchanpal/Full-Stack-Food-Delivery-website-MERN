@@ -19,7 +19,7 @@ const Nav = () => {
     const [showInfo, setShowInfo] = useState(false);
     const [showSearch, setShowSearch] = useState(false);
 
-    const { userData, userCity } = useSelector(state => state.user);
+    const { userData, userCity, cartItems } = useSelector(state => state.user);
     const { myShopData } = useSelector(state => state.owner);
 
 
@@ -115,9 +115,10 @@ const Nav = () => {
                         // If role is user then show the bellow content
                         (<>
                             {/* Cart section show this cart section if userData role is "user" */}
-                            <div className='relative cursor-pointer'>
+                            <div className='relative cursor-pointer' onClick={() => navigate('/cart')}>
                                 <FaCartPlus size={25} className='text-[#ff4d2d]' />
-                                <span className='absolute right-[-9px] -top-3 text-[#ff4d2d] '>0</span>
+                                <span className='absolute right-[-9px] -top-3 text-[#ff4d2d] '>{cartItems.length}</span>
+                                {/* here by cartItems.length we show how many diff food item added to our cart */}
                             </div>
 
                             {/* my order button */}

@@ -12,6 +12,8 @@ import CreateEditShop from './pages/CreateEditShop'
 import AddItem from './pages/AddItem'
 import EditItem from './pages/EditItem'
 import UseGetAllShopsInCurrCity from './hooks/UseGetAllShopsInCurrCity'
+import UseGetAllitemsInCity from './hooks/UseGetAllitemsInCity'
+import CartPage from './pages/CartPage'
 
 export const serverUrl = "http://localhost:8000"
 
@@ -24,6 +26,7 @@ function App() {
   UseGetCity();
   UseGetUserShop();
   UseGetAllShopsInCurrCity();
+  UseGetAllitemsInCity();
 
   const { userData } = useSelector(state => state.user)
 
@@ -39,9 +42,10 @@ function App() {
         {/* //? if we have userData then why show SignUp Or SignIn page navigate to Home page directly */}
         <Route path='/signin' element={!userData ? <SignIn /> : <Navigate to={"/"} />} />
         <Route path='/forgot-password' element={<ForgotPassword />} />
-        <Route path='/create-edit-shop' element={<CreateEditShop />} />
-        <Route path='/add-item' element={<AddItem />} />
-        <Route path='/edit-item/:itemId' element={<EditItem/>} />
+        <Route path='/create-edit-shop' element={userData ? <CreateEditShop /> : <Navigate to={"/signin"} />} />
+        <Route path='/add-item' element={userData ? <AddItem /> : <Navigate to={"/signin"} />} />
+        <Route path='/edit-item/:itemId' element={userData ? <EditItem /> : <Navigate to={"/signin"} />} />
+        <Route path='/cart' element={userData ? <CartPage /> : <Navigate to={"/signin"} />} />
       </Routes>
     </>
   )
