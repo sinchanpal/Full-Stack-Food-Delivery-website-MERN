@@ -2,6 +2,7 @@ import axios from 'axios';
 import React, { useEffect } from 'react'
 import { useDispatch, useSelector } from 'react-redux';
 import { setUserAddress, setUserCity, setUserState } from '../redux/userSlice';
+import { setAddress, setLocation } from '../redux/mapSlice';
 
 const UseGetCity = () => {
 
@@ -16,6 +17,8 @@ const UseGetCity = () => {
                 const latitude = position.coords.latitude;
                 const longitude = position.coords.longitude;
 
+                dispatch(setLocation({lon:longitude , lat:latitude}));  //?here we pass lon and lat to mapSlice for location
+
                 //! here we use api from geoapify website to find city using latitude longitude
                 const result = await axios.get(`https://api.geoapify.com/v1/geocode/reverse?lat=${latitude}&lon=${longitude}&format=json&apiKey=${API_Key}`);
 
@@ -29,6 +32,8 @@ const UseGetCity = () => {
                 dispatch(setUserCity(city));
                 dispatch(setUserState(state));
                 dispatch(setUserAddress(address));
+
+                dispatch(setAddress(address)); //here we pass the address to mapSlice 
 
             })
         }, [userData,dispatch]) //means this useEffect is called on userData change

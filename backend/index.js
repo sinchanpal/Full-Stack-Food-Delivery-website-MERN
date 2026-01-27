@@ -7,6 +7,7 @@ import authRouter from './routes/authRoutes.js';
 import userRouter from './routes/userRoutes.js';
 import shopRouter from './routes/shopRoutes.js';
 import itemRouter from './routes/itemsRoutes.js';
+import orderRouter from './routes/orderRoutes.js';
 
 
 
@@ -28,6 +29,7 @@ app.use("/api/auth", authRouter);
 app.use("/api/user", userRouter);
 app.use("/api/shop", shopRouter);
 app.use("/api/item", itemRouter);
+app.use("/api/order", orderRouter);
 
 
 

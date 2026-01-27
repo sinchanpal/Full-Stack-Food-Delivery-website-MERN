@@ -99,14 +99,14 @@ const Nav = () => {
 
                             {/* my order button for owner*/}
 
-                            <div className='hidden md:flex items-center gap-2 cursor-pointer relative px-3 py-1 rounded-lg bg-[#ff4d2d]/10 text-[#ff4d2d] font-medium'>
+                            <div className='hidden md:flex items-center gap-2 cursor-pointer relative px-3 py-1 rounded-lg bg-[#ff4d2d]/10 text-[#ff4d2d] font-medium' onClick={() => navigate('/my-orders')}>
                                 <IoReceiptOutline size={20} />
                                 <span className='absolute -right-2 -top-2 text-xs font-bold text-white bg-[#ff4d2d] rounded-full px-1.5 py-px '>0</span>
                                 <span>My Orders</span>
                             </div>
 
                             {/* on small devices show only receipt icon */}
-                            <div className='md:hidden flex items-center gap-2 cursor-pointer relative px-3 py-1 rounded-lg bg-[#ff4d2d]/10 text-[#ff4d2d] font-medium'>
+                            <div className='md:hidden flex items-center gap-2 cursor-pointer relative px-3 py-1 rounded-lg bg-[#ff4d2d]/10 text-[#ff4d2d] font-medium' onClick={() => navigate('/my-orders')}>
                                 <IoReceiptOutline size={20} />
                                 <span className='absolute -right-2 -top-2 text-xs font-bold text-white bg-[#ff4d2d] rounded-full px-1.5 py-px '>0</span>
                             </div>
@@ -122,7 +122,7 @@ const Nav = () => {
                             </div>
 
                             {/* my order button */}
-                            <button className='hidden md:block px-3 py-1 rounded-lg bg-[#ff4d2d]/10 text-[#ff4d2d] text-sm font-medium cursor-pointer'>
+                            <button className='hidden md:block px-3 py-1 rounded-lg bg-[#ff4d2d]/10 text-[#ff4d2d] text-sm font-medium cursor-pointer' onClick={() => navigate('/my-orders')}>
                                 My Orders
                             </button>
                         </>)}
@@ -139,7 +139,7 @@ const Nav = () => {
                     {/*if click on profile logo then show a Pop Up with some information  */}
                     {showInfo && <div className='fixed top-20 right-2.5 md:right-[10%] lg:right-[25%] w-[180px] bg-white shadow-2xl rounded-xl p-5 flex flex-col gap-2.5 z-9999'>
                         <div className='text-[17px] font-semibold'>{userData.fullName}</div>
-                        <div className='md:hidden text-[#ff4d2d] font-semibold cursor-pointer'>My Orders</div>
+                        <div className='md:hidden text-[#ff4d2d] font-semibold cursor-pointer' onClick={() => navigate('/my-orders')}>My Orders</div>
                         <div className='text-[#ff4d2d] font-semibold cursor-pointer' onClick={handleLogout}>Log Out</div>
                     </div>}
 

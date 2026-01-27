@@ -14,6 +14,10 @@ import EditItem from './pages/EditItem'
 import UseGetAllShopsInCurrCity from './hooks/UseGetAllShopsInCurrCity'
 import UseGetAllitemsInCity from './hooks/UseGetAllitemsInCity'
 import CartPage from './pages/CartPage'
+import CheckOut from './pages/CheckOut'
+import OrderPlaced from './pages/OrderPlaced'
+import MyOrders from './pages/MyOrders'
+import UseGetMyOrders from './hooks/UseGetMyOrders'
 
 export const serverUrl = "http://localhost:8000"
 
@@ -27,6 +31,7 @@ function App() {
   UseGetUserShop();
   UseGetAllShopsInCurrCity();
   UseGetAllitemsInCity();
+  UseGetMyOrders();
 
   const { userData } = useSelector(state => state.user)
 
@@ -46,6 +51,9 @@ function App() {
         <Route path='/add-item' element={userData ? <AddItem /> : <Navigate to={"/signin"} />} />
         <Route path='/edit-item/:itemId' element={userData ? <EditItem /> : <Navigate to={"/signin"} />} />
         <Route path='/cart' element={userData ? <CartPage /> : <Navigate to={"/signin"} />} />
+        <Route path='/checkout' element={userData ? <CheckOut /> : <Navigate to={"/signin"} />} />
+        <Route path='/order-placed' element={userData ? <OrderPlaced /> : <Navigate to={"/signin"} />} />
+        <Route path='/my-orders' element={userData ? <MyOrders /> : <Navigate to={"/signin"} />} />
       </Routes>
     </>
   )

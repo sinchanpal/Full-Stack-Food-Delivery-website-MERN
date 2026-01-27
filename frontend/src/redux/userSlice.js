@@ -12,7 +12,8 @@ const userSlice = createSlice({
         allItemsInUserCity: null,
         cartItems: [],  //here we create cartItems state like this cause when we addtoCart a item then we get the particullar item .And from that item we take this fields and store here. 
         // Also here we get our data in this format {id: null, name: null,  image: null, shop: null, price: null,  foodType: null,quantity: null}
-        totalCartAmount: 0 //this state is for store total amount of user cart
+        totalCartAmount: 0, //this state is for store total amount of user cart
+        myOrders: null //this state is for store all orders of current user Or owners shop
 
     },
     reducers: {
@@ -63,11 +64,15 @@ const userSlice = createSlice({
             state.cartItems = state.cartItems.filter(i => i.id !== itemId);
 
             state.totalCartAmount = state.cartItems.reduce((total, item) => total + (item.price * item.quantity), 0); //same way we calculate total for removeCart item
+        },
+
+        setMyOrders: (state, action) => {
+            state.myOrders = action.payload;
         }
 
 
     }
 })
 
-export const { setUserData, setUserCity, setUserState, setUserAddress, setAllShopsInUserCity, setAllItemsInUserCity, addToCart, updateQuantity, removeCartItem } = userSlice.actions
+export const { setUserData, setUserCity, setUserState, setUserAddress, setAllShopsInUserCity, setAllItemsInUserCity, addToCart, updateQuantity, removeCartItem, setMyOrders } = userSlice.actions
 export default userSlice.reducer
