@@ -36,7 +36,7 @@ const Nav = () => {
     return (
         <div className='w-full h-20 flex items-center justify-between md:justify-center gap-[30px] px-5 fixed top-0 z-9999 bg-[#fff9f6] overflow-visible'>
 
-            <div className='w-full max-w-5xl flex items-center justify-between gap-[30px]'>
+            <div className='w-full max-w-5xl flex items-center justify-center gap-10'>
 
 
                 {/* This Search section is only for small screen if showSearch is true and userData role is "user" then show it other wise dont show it */}
@@ -112,20 +112,25 @@ const Nav = () => {
                             </div>
 
                         </>) :
-                        // If role is user then show the bellow content
+                        // If role is user or delivery boy then show the bellow content
                         (<>
-                            {/* Cart section show this cart section if userData role is "user" */}
-                            <div className='relative cursor-pointer' onClick={() => navigate('/cart')}>
-                                <FaCartPlus size={25} className='text-[#ff4d2d]' />
-                                <span className='absolute right-[-9px] -top-3 text-[#ff4d2d] '>{cartItems.length}</span>
-                                {/* here by cartItems.length we show how many diff food item added to our cart */}
-                            </div>
+                            {/* if role is user then only show this cart section else if role is delivery boy don't show it */}
+                            {userData.role == "user" &&
 
-                            {/* my order button */}
+                                <div className='relative cursor-pointer' onClick={() => navigate('/cart')}>
+                                    <FaCartPlus size={25} className='text-[#ff4d2d]' />
+                                    <span className='absolute right-[-9px] -top-3 text-[#ff4d2d] '>{cartItems.length}</span>
+
+                                </div>
+                            }
+
+
+
                             <button className='hidden md:block px-3 py-1 rounded-lg bg-[#ff4d2d]/10 text-[#ff4d2d] text-sm font-medium cursor-pointer' onClick={() => navigate('/my-orders')}>
                                 My Orders
                             </button>
-                        </>)}
+                        </>
+                        )}
 
 
 
@@ -145,10 +150,10 @@ const Nav = () => {
 
 
                 </div>
-            </div>
+            </div >
 
 
-        </div>
+        </div >
     )
 }
 

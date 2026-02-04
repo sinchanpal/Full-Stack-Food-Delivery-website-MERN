@@ -23,6 +23,7 @@ import iconShadow from 'leaflet/dist/images/marker-shadow.png';
 import { setAddress, setLocation } from '../redux/mapSlice';
 import axios from 'axios';
 import { serverUrl } from '../App';
+import { addMyOrders, setCartItems } from '../redux/userSlice';
 
 let DefaultIcon = L.icon({
     iconUrl: icon,
@@ -197,6 +198,8 @@ const CheckOut = () => {
             }, { withCredentials: true });
 
             console.log("Order Placed Successfully", result.data);
+            dispatch(addMyOrders(result.data)); //add the new order to myOrders in redux
+            dispatch(setCartItems([])); //after place order empty the cartItems in redux
             navigate('/order-placed')
         } catch (error) {
             console.log("Error while place order: ", error);
@@ -340,7 +343,7 @@ const CheckOut = () => {
                 </section>
 
                 {/* Order button */}
-                <button className='w-full bg-[#ff4d2d] hover:bg-[#e64526] text-white py-3 rounded-xl font-semibold' onClick={handlePlaceOrder}>{paymentMethod == "cod" ? "Place Order" : "Pay & Place Order"}</button>
+                <button className='w-full bg-[#ff4d2d] hover:bg-[#e64526] text-white py-3 rounded-xl font-semibold cursor-pointer' onClick={handlePlaceOrder}>{paymentMethod == "cod" ? "Place Order" : "Pay & Place Order"}</button>
             </div>
         </div>
     )

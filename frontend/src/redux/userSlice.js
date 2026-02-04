@@ -13,7 +13,8 @@ const userSlice = createSlice({
         cartItems: [],  //here we create cartItems state like this cause when we addtoCart a item then we get the particullar item .And from that item we take this fields and store here. 
         // Also here we get our data in this format {id: null, name: null,  image: null, shop: null, price: null,  foodType: null,quantity: null}
         totalCartAmount: 0, //this state is for store total amount of user cart
-        myOrders: null //this state is for store all orders of current user Or owners shop
+        myOrders: [], //this state is for store all orders of current user Or owners shop
+        myOrderStatus: null
 
     },
     reducers: {
@@ -66,13 +67,37 @@ const userSlice = createSlice({
             state.totalCartAmount = state.cartItems.reduce((total, item) => total + (item.price * item.quantity), 0); //same way we calculate total for removeCart item
         },
 
+        setCartItems: (state, action) => { //we use this reducer to empty the cartItems array after place order
+            state.cartItems = action.payload;
+        },
+
         setMyOrders: (state, action) => {
             state.myOrders = action.payload;
+        },
+
+        addMyOrders: (state, action) => { //we use this reducer cause : Bsically when we place a new order then the order is stored in our database backend but for get user orders on frontend side we need to call api and fetch all orders again from backend so instantly after placing order we can't see our new order in myOrders section unless we refresh the page .To avoid this we use this reducer to add the new order to top of myOrders array so now when we place a new order we can see it instantly in myOrders section without refresh 
+            state.myOrders = [action.payload, ...state.myOrders];
+        },
+
+        updateMyOrderStatus: (state, action) => {  // we use this reducer to update the particular shopOrder status inside a particular user order in myOrders array when owner change the status of that shopOrder
+            const { orderId, shopOrderId, status } = action.payload;
+
+            const order = state.myOrders.find(o => o._id == orderId);
+
+            if (order) {
+                const shopOrder = order.shopOrders.find(so => so.shop._id == shopOrderId);
+
+                if (shopOrder) {
+                    shopOrder.status = status;
+                }
+
+            }
+
         }
 
 
     }
 })
 
-export const { setUserData, setUserCity, setUserState, setUserAddress, setAllShopsInUserCity, setAllItemsInUserCity, addToCart, updateQuantity, removeCartItem, setMyOrders } = userSlice.actions
+export const { setUserData, setUserCity, setUserState, setUserAddress, setAllShopsInUserCity, setAllItemsInUserCity, addToCart, updateQuantity, removeCartItem, setMyOrders, addMyOrders, setCartItems, updateMyOrderStatus } = userSlice.actions
 export default userSlice.reducer

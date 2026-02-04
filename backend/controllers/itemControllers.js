@@ -129,7 +129,7 @@ export const getAllItemsByCity = async (req, res) => {
         }
 
         const allShopIds = shops?.map((shop) => shop._id);
-        const allItems = await Item.find({ shop: { $in: allShopIds } }); //we get all items whose shop id is in allShopIds array 
+        const allItems = await Item.find({ shop: { $in: allShopIds } }).populate('shop','name'); //we get all items whose shop id is in allShopIds array 
 
         if (!allItems) {
             return res.status(400).json({ message: "No Items found in your City !" });

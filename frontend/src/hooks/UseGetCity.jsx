@@ -28,6 +28,10 @@ const UseGetCity = () => {
                 let state = result?.data?.results[0]?.state;
                 let address = result?.data?.results[0]?.address_line2;
 
+                console.log(city);
+                console.log(state);
+                console.log(address);
+
                 //we store our city to userCity and state to userState and address to userAddress in redux store
                 dispatch(setUserCity(city));
                 dispatch(setUserState(state));
