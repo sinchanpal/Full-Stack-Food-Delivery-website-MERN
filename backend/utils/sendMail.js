@@ -26,3 +26,16 @@ export const sendOtpMail = async (to, otp) => {
 
     console.log("Message sent:", info.messageId);
 }
+
+
+export const sendDeliveryOtpMail = async (user, otp) => {
+
+    const info = await transporter.sendMail({
+        from: process.env.EMAIL, //send message from which email
+        to: user.email,                              //get the message on which mail
+        subject: "Delivery Confermation OTP",
+        html: `<p>Hi👋 ${user?.fullName} Your OTP for delivery confermation is <b>${otp}</b>. It expires in 5 minutes</p>`, // HTML body
+    });
+
+    console.log("Message sent:", info.messageId);
+}

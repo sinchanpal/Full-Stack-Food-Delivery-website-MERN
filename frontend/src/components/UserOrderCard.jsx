@@ -1,6 +1,9 @@
 import React from 'react'
+import { useNavigate } from 'react-router-dom'
 
 const UserOrderCard = ({ data }) => {
+
+    const navigate=useNavigate();
     return (
         <div className='bg-white rounded-lg shadow p-4 space-y-4'>
             <div className='flex justify-between border-b pb-2'>
@@ -47,7 +50,7 @@ const UserOrderCard = ({ data }) => {
             {/* display total amount and track order btn */}
             <div className='flex justify-between items-center border-t pt-2'>
                 <p className='font-bold text-lg'>Total Amount : <span className='text-green-700'>₹{data?.totalAmount}</span> </p>
-                <button className='bg-[#ff4d2d] hover:bg-[#e64526] text-white px-4 py-2 rounded-lg text-sm'>Track Order</button>
+                <button className='bg-[#ff4d2d] hover:bg-[#e64526] text-white px-4 py-2 rounded-lg text-sm' onClick={() => navigate(`/track-customer-order/${data._id}`)}>Track Order</button>
             </div>
         </div>
     )

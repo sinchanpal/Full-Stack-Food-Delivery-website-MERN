@@ -64,6 +64,18 @@ const shopOrderSchema = new mongoose.Schema({
         type: mongoose.Schema.Types.ObjectId,
         ref: "User",
         default: null
+    },
+    deliveryOtp: {      //here after mark as delivered a otp is send to the user
+        type: String,
+        default: null
+    },
+    otpExpires: {
+        type: Date,
+        default: null
+    },
+    deliverAt: {  //this field store when the delivery boy deliver the order
+        type: Date,
+        default: null
     }
     
 }, { timestamps: true });

@@ -31,7 +31,8 @@ const deliveryAssignment = new mongoose.Schema({
         default: "brodcasted"
     },
     acceptedAt: {
-        type: Date
+        type: Date,
+        default: null
     }
 
 
