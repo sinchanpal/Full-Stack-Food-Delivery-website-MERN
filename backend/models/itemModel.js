@@ -21,11 +21,11 @@ const itemSchema = new mongoose.Schema({
             "Biryani",
             "Pizza",
             "Burger",
-            "Rolls",
+            "Sandwiches",
             "Chinese",
             "South Indian",
             "North Indian",
-            "Momos",
+            "Fast Food",
             "Dessert",
             "Drinks"
         ],

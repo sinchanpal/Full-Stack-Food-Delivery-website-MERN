@@ -6,9 +6,14 @@ import { FaCircleArrowLeft } from "react-icons/fa6";
 import { FaCircleArrowRight } from "react-icons/fa6";
 import { useSelector } from 'react-redux';
 import ItemCard from './ItemCard';
+import { useNavigate } from 'react-router-dom';
+import { LuSearchCheck } from "react-icons/lu";
 
 
 const UserDashboard = () => {
+
+
+    const navigate = useNavigate();
 
     //get all shops in current city from redux store
     const { allShopsInUserCity } = useSelector(state => state.user);
@@ -16,8 +21,14 @@ const UserDashboard = () => {
     //get all Items in current city from redux store
     const { allItemsInUserCity } = useSelector(state => state.user);
 
+    //this state will store the items to show in user dashboard
+    const [updatedItemsList, setUpdatedItemsList] = useState([]);
+
     //get user city from redux store
     const { userCity } = useSelector(state => state.user);
+
+    //get items which matched by user search bar query from redux store
+    const { itemsBySearchBar } = useSelector(state => state.user);
 
 
     // This "ref" is like a hook we attach to the slider div so we can control it later
@@ -34,6 +45,27 @@ const UserDashboard = () => {
     const [leftShopScrollBtn, setLeftShopScrollBtn] = useState(false); // Hidden by default (you start at the beginning)
     const [rightShopScrollBtn, setRightShopScrollBtn] = useState(true); // Visible by default (there is usually more to see)
 
+    useEffect(() => {
+        setUpdatedItemsList(allItemsInUserCity);
+    }, [allItemsInUserCity]);
+
+    //here we fetch items by item category . like for example when we click on main course category then only category with "main course" should be visible
+    const handleUpdateItemsList = (category) => {
+        try {
+
+            if (category == "All") {
+                setUpdatedItemsList(allItemsInUserCity);
+            } else {
+                const itemsList = allItemsInUserCity.filter((i) => i.category === category);
+                setUpdatedItemsList(itemsList);
+            }
+        } catch (error) {
+            console.log("Some error in handleUpdateItemsLis function : ", error)
+        }
+    }
+
+    //TODO currently when we click on  any shop . This particular shop items are visible in userdashboard but my task is to find a logic  when user click on any particular shop then a new page is open and  all the items belong to this shops is shown
+    //here we fetch items by shop ids . like for ex: when we click on dominoz shop then only dominoz items should be visible
 
 
 
@@ -110,6 +142,19 @@ const UserDashboard = () => {
             {/* Nav Bar Section */}
             <Nav />
 
+            {/* This Section is for show items as per user search query on search bar */}
+            {itemsBySearchBar && itemsBySearchBar.length > 0 &&
+                <div className='w-full max-w-6xl flex flex-col gap-5 items-start p-5 bg-white shadow-md rounded-2xl mt-4'>
+                    <h1 className='text-[#ff4d2d] text-2xl sm:text-3xl font-semibold border-b border-gray-400 pb-2 flex justify-center items-center gap-2'><LuSearchCheck className='h-auto text-green-400'/> Search Items : </h1>
+
+                    <div className='w-full h-auto flex flex-wrap justify-center items-center gap-6'>
+                        {itemsBySearchBar?.map((item, index) => (
+                        <ItemCard item={item} key={index} />
+                    ))}
+                    </div>
+                    
+
+                </div>}
 
             {/* All Categories Section */}
             <div className='w-full max-w-5xl flex flex-col gap-5 items-start px-5 md:px-0'>
@@ -132,7 +177,7 @@ const UserDashboard = () => {
                         {/* All Category Cards we have to show here */}
                         {categories?.map((cat, index) => {
                             return (
-                                <CategoryCard name={cat.category} image={cat.image} key={index} />
+                                <CategoryCard name={cat.category} image={cat.image} key={index} onClick={() => handleUpdateItemsList(cat.category)} /> //here actually onClick is pass as a prop which we handle in  CategoryCard
                             )
                         })}
                     </div>
@@ -174,7 +219,7 @@ const UserDashboard = () => {
                         {/* All Category Cards we have to show here */}
                         {allShopsInUserCity?.map((shop, index) => { //Add '?' cause This means "If allShopsInUserCity is null, do NOTHING. Do not crash."
                             return (
-                                <CategoryCard name={shop.name} image={shop.image} key={index} />
+                                <CategoryCard name={shop.name} image={shop.image} key={index} onClick={() => navigate(`/get-shop-details-by-id/${shop._id}`)} />
                             )
                         })}
                     </div>
@@ -196,11 +241,11 @@ const UserDashboard = () => {
                 <h1 className='text-gray-800 text-2xl sm:text-3xl'>Suggested Items In Your City {userCity}</h1>
 
                 <div className='w-full h-auto flex flex-wrap gap-5 justify-center'>
-                        {allItemsInUserCity?.map((item,index)=>{
-                            return (
-                                <ItemCard item={item} key={index}/>
-                            )
-                        })}
+                    {updatedItemsList?.map((item, index) => {
+                        return (
+                            <ItemCard item={item} key={index} />
+                        )
+                    })}
                 </div>
             </div>
         </div>

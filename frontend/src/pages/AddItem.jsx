@@ -23,11 +23,11 @@ const AddItem = () => {
         "Biryani",
         "Pizza",
         "Burger",
-        "Rolls",
+        "Sandwiches",
         "Chinese",
         "South Indian",
         "North Indian",
-        "Momos",
+        "Fast Food",
         "Dessert",
         "Drinks"
     ];

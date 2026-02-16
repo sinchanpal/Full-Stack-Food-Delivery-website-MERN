@@ -20,7 +20,7 @@ const UseGetAllShopsInCurrCity = () => {
                 const result = await axios.get(`${serverUrl}/api/shop/get-all-shops-by-city/${userCity}`, { withCredentials: true });
 
                 dispatch(setAllShopsInUserCity(result?.data)); 
-                //console.log(result.data);
+                console.log(result.data);
             } catch (error) {
                 console.log("Error in UseGetAllShopsInCurrCity", error);
             }

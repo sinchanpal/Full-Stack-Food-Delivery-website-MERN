@@ -1,4 +1,4 @@
-import React, { useState } from 'react'
+import React, { useEffect, useState } from 'react'
 import { FaLocationDot } from "react-icons/fa6";
 import { IoSearchOutline } from "react-icons/io5";
 import { FaCartPlus } from "react-icons/fa";
@@ -7,7 +7,7 @@ import { RxCross1 } from "react-icons/rx";
 import { IoReceiptOutline } from "react-icons/io5";
 import { useDispatch, useSelector } from 'react-redux';
 import axios from 'axios';
-import { setUserData } from '../redux/userSlice';
+import { setItemsBySearchBar, setUserData } from '../redux/userSlice';
 import { serverUrl } from '../App';
 import { useNavigate } from 'react-router-dom';
 
@@ -18,6 +18,7 @@ const Nav = () => {
 
     const [showInfo, setShowInfo] = useState(false);
     const [showSearch, setShowSearch] = useState(false);
+    const [itemsQuery, setItemsQuery] = useState("");
 
     const { userData, userCity, cartItems } = useSelector(state => state.user);
     const { myShopData } = useSelector(state => state.owner);
@@ -31,6 +32,28 @@ const Nav = () => {
             console.log("Error in logout logic in Nav.jsx! ", error);
         }
     }
+
+    //this function call the controller to handle finding items by search bar query
+    const handleGetItemsBySearchBar = async () => {
+        try {
+            const res = await axios.get(`${serverUrl}/api/item/get-items-by-search?itemQuery=${itemsQuery}&currCity=${userCity}`, { withCredentials: true });
+
+            dispatch(setItemsBySearchBar(res.data));
+            console.log(res.data);
+        } catch (error) {
+            console.log("Error in handleGetItemsBySearchBar logic in Nav.jsx! ", error);
+        }
+    }
+
+    useEffect(() => {
+
+        if (itemsQuery) {
+            handleGetItemsBySearchBar();
+        } else {
+            dispatch(setItemsBySearchBar(null));
+        }
+
+    }, [itemsQuery]);
 
 
     return (
@@ -48,7 +71,7 @@ const Nav = () => {
                         </div>
                         <div className='w-[80%] flex items-center gap-2.5'>
                             <IoSearchOutline size={25} className='text-[#ff4d2d]' />
-                            <input type="text" placeholder='Search delicious foods...' className='px-2.5 text-gray-700 outline-0 w-full' />
+                            <input type="text" placeholder='Search delicious foods...' className='px-2.5 text-gray-700 outline-0 w-full' onChange={(e) => setItemsQuery(e.target.value)} value={itemsQuery} />
                         </div>
                     </div>}
 
@@ -65,7 +88,7 @@ const Nav = () => {
                         </div>
                         <div className='w-[80%] flex items-center gap-2.5'>
                             <IoSearchOutline size={25} className='text-[#ff4d2d]' />
-                            <input type="text" placeholder='Search delicious foods...' className='px-2.5 text-gray-700 outline-0 w-full' />
+                            <input type="text" placeholder='Search delicious foods...' className='px-2.5 text-gray-700 outline-0 w-full' onChange={(e) => setItemsQuery(e.target.value)} value={itemsQuery} />
                         </div>
                     </div>}
 

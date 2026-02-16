@@ -14,7 +14,8 @@ const userSlice = createSlice({
         // Also here we get our data in this format {id: null, name: null,  image: null, shop: null, price: null,  foodType: null,quantity: null}
         totalCartAmount: 0, //this state is for store total amount of user cart
         myOrders: [], //this state is for store all orders of current user Or owners shop
-        myOrderStatus: null
+        myOrderStatus: null,
+        itemsBySearchBar: null, //here we store all the items related to user search query on search bar
 
     },
     reducers: {
@@ -93,11 +94,15 @@ const userSlice = createSlice({
 
             }
 
+        },
+
+        setItemsBySearchBar: (state, action) => {
+            state.itemsBySearchBar = action.payload;
         }
 
 
     }
 })
 
-export const { setUserData, setUserCity, setUserState, setUserAddress, setAllShopsInUserCity, setAllItemsInUserCity, addToCart, updateQuantity, removeCartItem, setMyOrders, addMyOrders, setCartItems, updateMyOrderStatus } = userSlice.actions
+export const { setUserData, setUserCity, setUserState, setUserAddress, setAllShopsInUserCity, setAllItemsInUserCity, addToCart, updateQuantity, removeCartItem, setMyOrders, addMyOrders, setCartItems, updateMyOrderStatus, setItemsBySearchBar } = userSlice.actions
 export default userSlice.reducer

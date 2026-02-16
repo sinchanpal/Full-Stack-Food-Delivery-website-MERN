@@ -76,7 +76,7 @@ const CheckOut = () => {
     const [searchAddress, setSearchAddress] = useState("");
     const [paymentMethod, setPaymentMethod] = useState("cod");
 
-    const { cartItems, totalCartAmount } = useSelector(state => state.user);
+    const { cartItems, totalCartAmount, userData } = useSelector(state => state.user);
 
 
     let deliveryFee = totalCartAmount > 500 ? 0 : 40; //if cart amount greater than 500 then delivery free else 40rs
@@ -164,23 +164,21 @@ const CheckOut = () => {
     //Function that recenter map to user current location
     const backToCenterLocation = () => {
 
-        if (!navigator.geolocation) {
-            alert("Geolocation is not supported by your browser");
-            return;
-        }
-
-        navigator.geolocation.getCurrentPosition(async (position) => {
-            // console.log(position);
-            const latitude = position.coords.latitude;
-            const longitude = position.coords.longitude;
+        try {
+            if (!navigator.geolocation) {
+                alert("Geolocation is not supported by your browser");
+                return;
+            }
+            const latitude = userData?.location?.coordinates?.[1];
+            const longitude = userData?.location?.coordinates?.[0];
 
             dispatch(setLocation({ lon: longitude, lat: latitude }));  //?here we pass lon and lat to mapSlice for location
-            getAddressFromLatLon(latitude, longitude); //fetch address from new lat lon
+            getAddressFromLatLon(latitude, longitude); //fetch address from new lat lon 
+        } catch (error) {
+            console.log("Error fetching backToCenterLocation:", error)
+        }
 
-        }, (error) => {
-            console.log("Error getting location:", error);
-            alert("Unable to retrieve your location");
-        })
+
     }
 
 

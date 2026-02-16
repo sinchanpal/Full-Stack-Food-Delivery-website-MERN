@@ -122,14 +122,17 @@ export const getAllItemsByCity = async (req, res) => {
 
     const { currCity } = req.params;
     try {
-        const shops = await Shop.find({ city: currCity });
+
+        // { $regex: currCity, $options: "i" } tells MongoDB to ignore capital/small letters
+        const shops = await Shop.find({ city: { $regex: currCity.trim(), $options: "i" } });
+
 
         if (!shops || shops.length === 0) {
             return res.status(400).json({ message: "No Shops found in your City !" });
         }
 
         const allShopIds = shops?.map((shop) => shop._id);
-        const allItems = await Item.find({ shop: { $in: allShopIds } }).populate('shop','name'); //we get all items whose shop id is in allShopIds array 
+        const allItems = await Item.find({ shop: { $in: allShopIds } }).populate('shop', 'name'); //we get all items whose shop id is in allShopIds array 
 
         if (!allItems) {
             return res.status(400).json({ message: "No Items found in your City !" });
@@ -138,5 +141,48 @@ export const getAllItemsByCity = async (req, res) => {
         return res.status(200).json(allItems);
     } catch (error) {
         return res.status(500).json({ message: "Error in getAllItemsByCity function in itemControllers.js !", error });
+    }
+}
+
+
+export const getItemsBySearchBar = async (req, res) => {
+    try {
+        const { itemQuery, currCity } = req.query; //req.query is used when you send data visible in the URL (via a GET request). The URL looks like this: http://localhost:5000/api/search-items?itemQuery=pizza&currCity=Mumbai
+
+        if (!itemQuery || !currCity) {
+            return res.status(400).json({ message: "Search query and City are required!" });
+        }
+
+        // { $regex: currCity, $options: "i" } tells MongoDB to ignore capital/small letters
+        //find all shops in current user City
+        const shops = await Shop.find({ city: { $regex: currCity.trim(), $options: "i" } });
+
+        if (!shops || shops.length === 0) {
+            return res.status(404).json({ message: "No Shops found in your City !" });
+        }
+
+        //store all found shops shopIds in a variable
+        const allShopIds = shops?.map((shop) => shop._id);
+
+        //find the all items where its shop id present in allShopIds and  ($or) either user itemQuery matches the name or category. With $regex (Pattern Match):If I search for "Apple", I find anything containing that word."Green Apple" ✅ (Found!)
+        const allItems = await Item.find({
+
+            shop: { $in: allShopIds },
+
+            $or: [
+                { name: { $regex: itemQuery.trim(), $options: "i" } },
+                { category: { $regex: itemQuery.trim(), $options: "i" } }
+            ]
+
+        }).populate('shop', 'name'); //we get all items whose shop id is in allShopIds array 
+
+        if (allItems.length === 0) {
+            return res.status(400).json({ message: "No Items found in your Query !" });
+        }
+
+        return res.status(200).json(allItems);
+
+    } catch (error) {
+        return res.status(500).json({ message: "Error in getItemsBySearchBar function in itemControllers.js !", error });
     }
 }

@@ -1,6 +1,6 @@
 import express from "express";
 import isAuth from "../middlewares/isAuth.js";
-import { createAndEditShop, getAllShopsByCity, getMyShop } from "../controllers/shopControllers.js";
+import { createAndEditShop, getAllShopsByCity, getMyShop, getShopDetailsById } from "../controllers/shopControllers.js";
 import { upload } from "../middlewares/multer.js";
 
 
@@ -13,6 +13,7 @@ shopRouter.post('/create-edit-shop', isAuth, upload.single("image"), createAndEd
 shopRouter.get('/get-my-shop', isAuth, getMyShop);  //get the userId from isAuth middleware then call getMyShop to get current user shop
 
 shopRouter.get('/get-all-shops-by-city/:currCity', isAuth, getAllShopsByCity);
+shopRouter.get('/get-shop-by-id/:shopId',isAuth,getShopDetailsById);
 
 
 export default shopRouter;
