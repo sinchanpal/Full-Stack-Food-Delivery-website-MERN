@@ -181,6 +181,61 @@ const CheckOut = () => {
 
     }
 
+    //when user click on place order button this function will run and if user select online payment then this function will call openRazorpayWindow function to open razorpay payment window
+    const openRazorpayWindow = (razorpayOrder, orderId, key_id) => {
+
+        // Define the options for the Razorpay popup window
+        const options = {
+            key: key_id, // Your Razorpay API Key
+            amount: razorpayOrder.amount, // Amount in paise (₹100 = 10000 paise)
+            currency: "INR",
+            name: "Vingo",
+            description: "Order Payment for Food Delivery",
+            order_id: razorpayOrder.id, // The order ID created by Razorpay in your backend
+
+            // This 'handler' function runs automatically when the payment is SUCCESSFUL
+            handler: async function (response) {
+                try {
+                    // Send the payment ID to your backend to verify and update the database
+                    // Make sure this URL matches your actual verify route in orderRouter.js!
+
+                    const verifyPayment = await axios.post(`${serverUrl}/api/order/verify-payment`, {
+                        razorpay_payment_id: response.razorpay_payment_id,
+                        orderId
+                    }, { withCredentials: true });
+
+                    console.log("Payment Verified Successfully!", verifyPayment.data);
+
+                    // Payment is verified! Empty cart and navigate to success page
+                    dispatch(addMyOrders(verifyPayment.data));
+                    dispatch(setCartItems([]));
+                    navigate('/order-placed');
+
+
+
+                } catch (error) {
+                    console.log("Payment verification failed", error);
+                    alert("Payment verification failed!");
+                }
+
+
+            },
+            theme: {
+                color: "#ff4d2d" // Matches my app's orange theme perfectly!
+            }
+        }
+
+        // Open the Razorpay window
+        const rzp = new window.Razorpay(options);
+
+        // If payment fails to open or user closes it, handle errors
+        rzp.on('payment.failed', function (response) {
+            console.log("Payment Failed", response.error);
+            alert("Payment Failed. Please try again.");
+        });
+        rzp.open();
+    }
+
 
     const handlePlaceOrder = async () => {
         try {
@@ -192,13 +247,31 @@ const CheckOut = () => {
                     latitude: location.lat,
                     longitude: location.lon
                 },
-                totalCartAmount
+                totalCartAmount: totalCartAmount + deliveryFee + foodGST
             }, { withCredentials: true });
 
-            console.log("Order Placed Successfully", result.data);
-            dispatch(addMyOrders(result.data)); //add the new order to myOrders in redux
-            dispatch(setCartItems([])); //after place order empty the cartItems in redux
-            navigate('/order-placed')
+            // --- IF CASH ON DELIVERY ---
+            if (paymentMethod === "cod") {
+
+                console.log("Order Placed Successfully", result.data);
+                dispatch(addMyOrders(result.data)); //add the new order to myOrders in redux
+                dispatch(setCartItems([])); //after place order empty the cartItems in redux
+                navigate('/order-placed')
+                return;
+            }
+
+            // --- IF ONLINE PAYMENT ---
+            if (paymentMethod === "online") {
+
+                // Extract the data your backend sent us
+                const { razorpayOrder, orderId, key_id } = result.data;
+
+                openRazorpayWindow(razorpayOrder, orderId, key_id);
+
+
+            }
+
+
         } catch (error) {
             console.log("Error while place order: ", error);
         }

@@ -60,7 +60,7 @@ const shopOrderSchema = new mongoose.Schema({
         ref: "DeliveryAssignment",
         default: null
     },
-    assignedDeliveryBoy:{   //here we store the delivery boy data for this particular shopOrder
+    assignedDeliveryBoy: {   //here we store the delivery boy data for this particular shopOrder
         type: mongoose.Schema.Types.ObjectId,
         ref: "User",
         default: null
@@ -77,7 +77,7 @@ const shopOrderSchema = new mongoose.Schema({
         type: Date,
         default: null
     }
-    
+
 }, { timestamps: true });
 
 
@@ -106,9 +106,22 @@ const orderSchema = new mongoose.Schema({
         // Sum of all subTotals from the shops below.
         required: true
     },
-    shopOrders: [shopOrderSchema]  // COMMENT: An array of shop orders.
+    shopOrders: [shopOrderSchema],  // COMMENT: An array of shop orders.
     // Example: [ {Dominos Order}, {Burger King Order} ]
     // This allows you to split the order internally while the user sees just one "Order".
+
+    payment: {
+        type: Boolean,
+        default: false
+    },
+    razorpayPaymentId: {
+        type: String,
+        default: null
+    },
+    razorpayOrderId: {
+        type: String,
+        default: null
+    }
 }, { timestamps: true });
 
 const Order = mongoose.model("Order", orderSchema);

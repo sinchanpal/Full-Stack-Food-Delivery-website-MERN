@@ -53,6 +53,10 @@ const OwnerOrderCard = ({ data }) => {
         <p>{data?.deliveryAddress?.text}</p>
         <p className='text-xs text-gray-500'>Lat: {data?.deliveryAddress?.latitude}, Lon: {data?.deliveryAddress?.longitude}</p>
 
+        <p className='text-sm text-gray-800 font-medium'>Payment Type: {data?.paymentMethod?.toUpperCase()}</p>
+
+        {data?.paymentMethod === "online" && <p className={`font-semibold ${data?.payment == false ? "text-red-500" : "text-green-500"}`}>{data?.payment == false ? "Payment Pending" : "Payment Done✅"}</p>}
+
       </div>
 
       <div className='flex space-x-4 overflow-x-auto pb-2'>
@@ -86,7 +90,7 @@ const OwnerOrderCard = ({ data }) => {
         data?.shopOrders[0]?.status == "out-for-delivery" &&
         <div className='mt-2 p-2 border rounded-lg text-sm bg-orange-50'>
 
-          {data?.shopOrders[0]?.assignedDeliveryBoy ? <p  className='text-lg text-[#ff4d2d] font-semibold'>Assigned Delivery Boy : </p> : <p className='text-lg font-semibold'>Availabe Delivery Boys : </p>}
+          {data?.shopOrders[0]?.assignedDeliveryBoy ? <p className='text-lg text-[#ff4d2d] font-semibold'>Assigned Delivery Boy : </p> : <p className='text-lg font-semibold'>Availabe Delivery Boys : </p>}
 
 
           {availableDeliveryBoys.length > 0 ?

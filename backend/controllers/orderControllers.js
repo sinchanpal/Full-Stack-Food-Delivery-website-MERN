@@ -3,6 +3,16 @@ import Order from "../models/orderModel.js";
 import Shop from "../models/shopModel.js";
 import User from "../models/userModel.js";
 import { sendDeliveryOtpMail } from "../utils/sendMail.js";
+import Razorpay from "razorpay";
+import dotenv from "dotenv";
+
+dotenv.config();
+
+
+let instance = new Razorpay({
+    key_id: process.env.RAZORPAY_KEY_ID,
+    key_secret: process.env.RAZORPAY_KEY_SECRET,
+});
 
 
 
@@ -55,6 +65,39 @@ export const placeOrder = async (req, res) => {
             }
         }));
 
+
+        //? if payment method is online then we also create a order in razorpay dashboard using razorpay instance and return the razorpay order details to frontend for further process of payment.
+
+        if (paymentMethod === "online") {
+
+            const razorpayOrder = await instance.orders.create({   //using the razorpay instance we create a order in razorpay dashboard and we store the returned order details in razorpayOrder variable
+                amount: totalCartAmount * 100, //amount should be in paisa
+                currency: "INR",
+                receipt: `receipt_order_${new Date().getTime()}` //receipt is a unique id which is used to identify the order in razorpay dashboard and we create it using current timestamp
+            })
+
+            const newOrder = await Order.create({  //create the new  order with all the details
+                user: req.userId,
+                paymentMethod,
+                deliveryAddress: address,
+                totalAmount: totalCartAmount,
+                razorpayOrderId: razorpayOrder.id,
+                payment: false,  //here we set payment false because user not yet paid we just created the order in razorpay dashboard but user not yet complete the payment so we set payment false and after payment successfull we update this field to true
+                shopOrders
+            })
+
+
+            return res.status(200).json({
+                razorpayOrder,
+                orderId: newOrder._id,
+                key_id: process.env.RAZORPAY_KEY_ID
+            });
+
+
+        }
+
+        //? if payment method is cod then we directly create the order in our database without creating order in razorpay dashboard because for cod there is no need to create order in razorpay dashboard and we directly return the created order details to frontend
+
         const newOrder = await Order.create({  //create the new  order with all the details
             user: req.userId,
             paymentMethod,
@@ -78,6 +121,40 @@ export const placeOrder = async (req, res) => {
 //     dominosId: [pizza , garlic bread]
 //     burgerKingId: [burger]
 // }
+
+export const verifyRazorPayPayment = async (req, res) => {
+
+    try {
+        const { razorpay_payment_id, orderId } = req.body;
+
+        const checkPayment = await instance.payments.fetch(razorpay_payment_id); //using razorpay instance we fetch the payment details from razorpay dashboard using the razorpay_payment_id which is returned by frontend after successful payment
+
+        if (!checkPayment || checkPayment.status !== "captured") { //if there is no payment details found or the payment status is not captured then we return error
+
+            return res.status(400).json({ message: "Payment not successfull" });
+        }
+
+        const order = await Order.findById(orderId);
+
+        if (!order) {
+            return res.status(400).json({ message: "order not found !" });
+        }
+
+        order.payment = true; //if payment is successfull then we update the order payment field to true
+        order.razorpayPaymentId = razorpay_payment_id; //we also store the razorpay_payment_id in our order for future reference
+        await order.save();
+
+        await order.populate("shopOrders.shopOrderItems.item", "image name price");
+        await order.populate("shopOrders.shop", "name");
+
+        return res.status(200).json(order);
+
+
+
+    } catch (error) {
+        return res.status(500).json({ message: "Error while verifying payment", error });
+    }
+}
 
 
 

@@ -3,7 +3,7 @@ import { useNavigate } from 'react-router-dom'
 
 const UserOrderCard = ({ data }) => {
 
-    const navigate=useNavigate();
+    const navigate = useNavigate();
     return (
         <div className='bg-white rounded-lg shadow p-4 space-y-4'>
             <div className='flex justify-between border-b pb-2'>
@@ -15,7 +15,8 @@ const UserOrderCard = ({ data }) => {
                 </div>
 
                 <div className='text-right'>
-                    <p className='text-sm text-gray-800'>{data?.paymentMethod?.toUpperCase()}</p>
+                    <p className='text-sm text-gray-800 font-medium'>{data?.paymentMethod?.toUpperCase()}</p>
+                    {data?.paymentMethod === "online" && <p className={`font-semibold ${data?.payment == false ? "text-red-500" : "text-green-500"}`}>{data?.payment == false ? "Payment Pending" : "Payment Done✅"}</p>}
                     {/* <p className='font-medium text-blue-500'>{data?.shopOrders[0]?.status}</p> */}
                 </div>
 
@@ -41,8 +42,15 @@ const UserOrderCard = ({ data }) => {
 
                     {/* display subtotal for particular shop order */}
                     <div className='flex justify-between items-center border-t pt-2'>
-                        <p className='font-semibold'>Subtotal: {shopOrder?.subTotal}</p>
-                        <p className='font-medium text-blue-500'>{shopOrder?.status}</p>
+
+                        <div className='flex items-start justify-center gap-1.5'>
+                            <p className='font-semibold'>Subtotal: ₹{shopOrder?.subTotal} | </p>
+                            <p className='font-medium text-blue-500'>Status: {shopOrder?.status}</p>
+                        </div>
+
+
+                        {shopOrder?.status !== "delivered" && <button className='bg-[#ff4d2d] hover:bg-[#e64526] text-white px-4 py-2 rounded-lg text-sm' onClick={() => navigate(`/track-customer-order/${data._id}`)}>Track Order</button>}
+
                     </div>
                 </div>
             ))}
@@ -50,7 +58,7 @@ const UserOrderCard = ({ data }) => {
             {/* display total amount and track order btn */}
             <div className='flex justify-between items-center border-t pt-2'>
                 <p className='font-bold text-lg'>Total Amount : <span className='text-green-700'>₹{data?.totalAmount}</span> </p>
-                <button className='bg-[#ff4d2d] hover:bg-[#e64526] text-white px-4 py-2 rounded-lg text-sm' onClick={() => navigate(`/track-customer-order/${data._id}`)}>Track Order</button>
+
             </div>
         </div>
     )
