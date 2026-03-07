@@ -43,6 +43,10 @@ const userSchema = new mongoose.Schema({
             type: [Number], //always coordinates are in this order [longitude, latitude]
             default: [0, 0] //default both are 0
         }
+    },
+    isOnline:{   //this will store the user online status
+        type:Boolean,
+        default:false
     }
 
 

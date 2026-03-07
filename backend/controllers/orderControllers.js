@@ -5,6 +5,7 @@ import User from "../models/userModel.js";
 import { sendDeliveryOtpMail } from "../utils/sendMail.js";
 import Razorpay from "razorpay";
 import dotenv from "dotenv";
+import { userSocketMap } from "../socket/socket.js";
 
 dotenv.config();
 
@@ -106,8 +107,36 @@ export const placeOrder = async (req, res) => {
             shopOrders
         })
 
+        await newOrder.populate("user", "fullName email mobile");
         await newOrder.populate("shopOrders.shopOrderItems.item", "image name price");
         await newOrder.populate("shopOrders.shop", "name");
+        await newOrder.populate("shopOrders.owner", "fullName email mobile socketId");
+
+        //? Here we Implement socket io for place order in COD mode . so that now when user place any order from any resturant and click enter the order details will instantly shown in owner my order section
+        const io = req.app.get("io"); //here we get the io instance from our app.js where we set it in app.set("io", io);
+
+        if (io) {
+
+            const plainNewOrder = newOrder.toObject(); // newOrder is a massive, complex Mongoose Document with hidden database methods. Socket.io cannot send Mongoose documents properly unless you convert them to plain JavaScript objects first using .toObject().
+
+            plainNewOrder?.shopOrders?.forEach((shopOrder) => {
+
+                const shopOwnerId = shopOrder.owner._id.toString(); //here we get the shop owner id from the shopOrder details
+                const ownerSocketId = userSocketMap[shopOwnerId]; //using the shop owner id we get the socket id of that shop owner from our userSocketMap which we maintain in our socket.js file
+
+
+                // Check if the shop owner is currently online (has an active socket connection)
+                if (ownerSocketId) {
+                    // io.to(socketId) ensures we send a private, real-time message ONLY to this specific restaurant owner, not to everyone.
+                    io.to(ownerSocketId).emit("new-order", {
+                        ...plainNewOrder,  // Spread the main order details (customer info, delivery address, payment method, etc.)
+                        shopOrders: [shopOrder]  // CRITICAL OVERRIDE: 
+                        // 1. Privacy: We overwrite the main 'shopOrders' data so this owner ONLY sees their own items, not items the user might have ordered from other restaurants at the same time.
+                        // 2. Data Structure: We wrap 'shopOrder' in an array [] because our frontend MyOrders.jsx expects an array (it uses newOrder?.shopOrders[0]) but here we send only one object (shopOrder).
+                    })
+                }
+            })
+        }
 
         console.log("Order placed successfully");
         return res.status(200).json(newOrder);
@@ -144,8 +173,36 @@ export const verifyRazorPayPayment = async (req, res) => {
         order.razorpayPaymentId = razorpay_payment_id; //we also store the razorpay_payment_id in our order for future reference
         await order.save();
 
+        await order.populate("user", "fullName email mobile");
         await order.populate("shopOrders.shopOrderItems.item", "image name price");
         await order.populate("shopOrders.shop", "name");
+        await order.populate("shopOrders.owner", "fullName email mobile socketId");
+
+        //? Here we Implement socket io for place order in Online mode . so that now when user place any order from any resturant in online mode and click enter the order details will instantly shown in owner my order section
+        const io = req.app.get("io"); //here we get the io instance from our app.js where we set it in app.set("io", io);
+
+        if (io) {
+
+            const plainNewOrder = order.toObject(); // order is a massive, complex Mongoose Document with hidden database methods. Socket.io cannot send Mongoose documents properly unless you convert them to plain JavaScript objects first using .toObject().
+
+            plainNewOrder?.shopOrders?.forEach((shopOrder) => {
+
+                const shopOwnerId = shopOrder.owner._id.toString(); //here we get the shop owner id from the shopOrder details
+                const ownerSocketId = userSocketMap[shopOwnerId]; //using the shop owner id we get the socket id of that shop owner from our userSocketMap which we maintain in our socket.js file
+
+
+                // Check if the shop owner is currently online (has an active socket connection)
+                if (ownerSocketId) {
+                    // io.to(socketId) ensures we send a private, real-time message ONLY to this specific restaurant owner, not to everyone.
+                    io.to(ownerSocketId).emit("new-order", {
+                        ...plainNewOrder,  // Spread the main order details (customer info, delivery address, payment method, etc.)
+                        shopOrders: [shopOrder]  // CRITICAL OVERRIDE: 
+                        // 1. Privacy: We overwrite the main 'shopOrders' data so this owner ONLY sees their own items, not items the user might have ordered from other restaurants at the same time.
+                        // 2. Data Structure: We wrap 'shopOrder' in an array [] because our frontend MyOrders.jsx expects an array (it uses newOrder?.shopOrders[0]) but here we send only one object (shopOrder).
+                    })
+                }
+            })
+        }
 
         return res.status(200).json(order);
 
@@ -168,7 +225,7 @@ export const getMyOrders = async (req, res) => {
         if (user.role == "user") {
             const orders = await Order.find({ user: req.userId }).sort({ createdAt: -1 })
                 .populate("shopOrders.shop", "name")
-                .populate("shopOrders.owner", "name email mobile")
+                .populate("shopOrders.owner", "fullName email mobile")
                 .populate("shopOrders.shopOrderItems.item", "name image price")
 
             return res.status(200).json(orders);
@@ -233,6 +290,8 @@ export const updateOrderStatus = async (req, res) => {
         //? now here we write logic for if status is out for delivery then we 1st find the near by(around 5km) all delivery boys and send a notification to the particular delivery boys who are available for delivery
 
         let deliveryBoysPayload = []; //here we store all our available delivery boys data.
+        let newDeliveryAssignment = null; //here we store the created delivery assignment for this shop order
+        let availableDeliveryBoysIds = []; //here we store all the available delivery boys ids who are near by 5km for this shop order delivery
 
         if (status == "out-for-delivery" && !shopOrder.orderAssignment) {
             //1. find the order delivery address
@@ -267,7 +326,7 @@ export const updateOrderStatus = async (req, res) => {
             const availableDeliveryBoys = nearByDeliveryBoys.filter(db => !busyIdsSet.has(String(db._id))); //here we filter the nearByDeliveryBoys whose id is not in busyIdsSet means they are available for delivery
 
             //now we have all the delivery boys ids who are available and near 5 km
-            const availableDeliveryBoysIds = availableDeliveryBoys.map(db => db._id);
+            availableDeliveryBoysIds = availableDeliveryBoys.map(db => db._id);
 
             if (availableDeliveryBoysIds.length == 0) {
                 await order.save();
@@ -275,7 +334,7 @@ export const updateOrderStatus = async (req, res) => {
             }
 
             //create a delivery assignment for this shop order
-            const newDeliveryAssignment = await DeliveryAssignment.create({
+            newDeliveryAssignment = await DeliveryAssignment.create({
                 order: order._id,     //here we store the main order_id where this shopOrder belongs 
 
                 shop: shopOrder.shop,    //out of all shopOrder in shopOrders here we store the shop details of particular shopOrder whose owner change the status to out-for-delivery 
@@ -300,6 +359,7 @@ export const updateOrderStatus = async (req, res) => {
                 }
             ))
 
+
         }
 
 
@@ -309,8 +369,55 @@ export const updateOrderStatus = async (req, res) => {
         const updatedShopOrder = order?.shopOrders?.find(so => so.shop == shopOrderId);
 
 
-        await order.populate("shopOrders.shop", "name")
+        await order.populate("shopOrders.shop", "name address")
         await order.populate("shopOrders.assignedDeliveryBoy", "fullName email mobile")
+        await order.populate("shopOrders.shopOrderItems.item", "name image price");
+
+        //? now here we emit socket event to  the frontend to update the order status . so that if the owner of the resturant update the order status it will instantly update in the customer my order section.
+
+        const io = req.app.get("io");
+        if (io) {
+            const customerId = order.user.toString();  //here we find the customer id from the order details because we want to send the order status update notification to the particular customer who place this order.
+            const customerSocketId = userSocketMap[customerId];  //using the customer id we get the socket id of that customer from our userSocketMap which we maintain in our socket.js file
+
+            if (customerSocketId) {
+
+                io.to(customerSocketId).emit("order-status-updated", {
+                    orderId: orderId, // Send the main order ID
+                    shopOrderId: shopOrderId, // Send the specific shop's order ID
+                    status: status,              // Send the new status string (e.g. "preparing")
+                    userId: customerId  // Send the user ID to identify which customer's order status is updated
+                })
+            }
+        }
+
+
+        //? BROADCAST TO NEARBY DELIVERY BOYS
+        // Only trigger this if the status changed to out-for-delivery AND we actually found nearby boys
+        if (status === "out-for-delivery" && availableDeliveryBoysIds && availableDeliveryBoysIds.length > 0) {
+
+            // Loop through every available delivery boy we found within 5km
+            availableDeliveryBoysIds.forEach((boyId) => {
+                const deliveryBoySocketId = userSocketMap[boyId.toString()]; //find each delivery boy socket id 
+
+                // If this specific delivery boy is currently online... we send them a real-time notification about this new delivery assignment that they can accept. We also send some key details about the order so they can make an informed decision about accepting it or not.
+                if (deliveryBoySocketId) {
+                    io.to(deliveryBoySocketId).emit("new-delivery-assignment", {
+                        deliveryBoyId: boyId,
+                        assignmentId: newDeliveryAssignment._id,
+                        orderId: order._id,
+                        shopName: updatedShopOrder.shop.name, 
+                        shopAddress: updatedShopOrder.shop.address, 
+                        deliveryAddress: order.deliveryAddress,
+                        shopOrderItems: updatedShopOrder.shopOrderItems,
+                        subTotal: updatedShopOrder.subTotal
+                    })
+                }
+            })
+        }
+
+
+
 
         return res.status(200).json(
             {

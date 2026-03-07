@@ -1,18 +1,19 @@
 import React, { useEffect, useState } from 'react'
 import Nav from './Nav'
-import { useSelector } from 'react-redux'
+import { useDispatch, useSelector } from 'react-redux'
 import axios from 'axios';
 import { serverUrl } from '../App';
 import DeliveryBoyTracking from './DeliveryBoyTracking';
 
 const DeliveryDashboard = () => {
 
-  const { userData, userAddress } = useSelector(state => state.user);
+  const { userData, userAddress, socket } = useSelector(state => state.user);
   const [availableAssignments, setAvailableAssignments] = useState([]);
   const [currentAcceptedOrder, setCurrentAcceptedOrder] = useState(null);
 
   const [otpSection, setOtpSection] = useState(false);
   const [otp, setOpt] = useState("");
+
 
 
   //for send a otp to customer
@@ -56,6 +57,32 @@ const DeliveryDashboard = () => {
     getDeliveryBoyAssignments();
     getCurrentAcceptOrder();
   }, [userData, userAddress]);
+
+
+
+  useEffect(() => {
+
+    if (!socket) return; //if socket is not connected yet then we return from here because we can't listen any socket event without socket connection
+
+
+    const handelNewDeliveryAssignment = (newAssignment) => {
+
+      if (newAssignment && newAssignment?.deliveryBoyId == userData?._id) {
+        setAvailableAssignments(prevAssignments => [newAssignment, ...prevAssignments]);  //here if we get new delivery assignment from backend and if this new delivery assignment is for this delivery boy then we add this new assignment at the beginning of availableAssignments array because we want to show latest assignment first in the list of available assignments
+      }
+
+    }
+    socket?.on("new-delivery-assignment", handelNewDeliveryAssignment);  //here we listen new-delivery-assignment event which is emitted from backend. when order status is changed and the status is "out-for-delivery" then we take the send value and set the value to the useState  setAvailableAssignments so now this delivery assignment appears instantly in our delivery boy dashboard section without refresh
+
+
+    return () => {  //when component unmounts we turn off the socket event listener to prevent memory leaks and unwanted behavior
+      socket?.off("new-delivery-assignment", handelNewDeliveryAssignment);
+    }
+
+  }, [socket]);
+
+
+
 
   //This function works when delivery boy excepts the order
   const getCurrentAcceptOrder = async () => {
