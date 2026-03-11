@@ -34,10 +34,15 @@ const OwnerDashboard = () => {
       {/* If there is shop data, show the shop details */}
       {myShopData &&
         <div className='w-full flex flex-col items-center gap-6 px-4 sm:px-6'>
-          <h1 className='text-2xl sm:text-3xl text-gray-900 flex items-center gap-3 mt-8 text-center'>
-            <FaUtensils size={60} className='text-[#ff4d2d]  mb-4 ' />
-            Welcome to {myShopData.name}
-          </h1>
+
+          <div className='flex items-center gap-3.5 p-4  sm:p-6 mt-5'>
+            <h1 className='text-2xl sm:text-3xl text-amber-900 font-bold'>
+              Welcome to {myShopData.name}
+            </h1>
+
+            <FaUtensils size={60} className='text-[#ff4d2d]' />
+          </div>
+
 
           <div className='bg-white shadow-lg rounded-xl overflow-hidden border border-orange-100 hover:shadow-2xl transition-all duration-300 w-full max-w-3xl relative'>
 
@@ -78,7 +83,7 @@ const OwnerDashboard = () => {
               })}
             </div>}
 
-            
+
 
 
 

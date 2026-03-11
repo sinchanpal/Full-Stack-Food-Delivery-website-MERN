@@ -4,12 +4,14 @@ import { useNavigate, useParams } from 'react-router-dom'
 import { serverUrl } from '../App';
 import { IoMdArrowRoundBack } from "react-icons/io";
 import DeliveryBoyTracking from '../components/DeliveryBoyTracking';
+import { useSelector } from 'react-redux';
 
 const TrackCustomerOrder = () => {
 
     const { orderId } = useParams();
     const navigate = useNavigate();
     const [currentTrackedOrder, setCurrentTrackedOrder] = useState();
+    const { socket } = useSelector(state => state.user);
 
     const handleGetOrderById = async () => {
         try {
@@ -24,6 +26,58 @@ const TrackCustomerOrder = () => {
     useEffect(() => {
         handleGetOrderById();
     }, [orderId])
+
+
+    
+    useEffect(() => {
+
+        if (!socket) return;
+
+        const handleDeliveryBoyLocationUpdate = (locationData) => {
+            // locationData contains: { lat, lon }
+
+            // We update the current order shopOrders state with the new coordinates
+            setCurrentTrackedOrder((prevOrder) => {
+
+                if (!prevOrder) return prevOrder; // If we don't have the order data yet, just return it
+
+                // We loop through the shopOrders and update the assignedDeliveryBoy location with the new coordinates we received from the socket event.
+                const updatedShopOrders = prevOrder.shopOrders.map(shopOrder => {
+                    if (shopOrder?.assignedDeliveryBoy) {
+                        return {
+                            ...shopOrder,
+                            assignedDeliveryBoy: {
+                                ...shopOrder.assignedDeliveryBoy,
+                                location: {
+                                    ...shopOrder.assignedDeliveryBoy.location,
+                                    coordinates: [locationData.lon, locationData.lat] // Update the coordinates with the new location data .Make sure to put it in [longitude, latitude] order for MongoDB GeoJSON structure!
+
+                                }
+                            }
+                        };
+                    }
+                    return shopOrder;
+                });
+
+
+                return {
+                    ...prevOrder,
+                    shopOrders: updatedShopOrders
+                }
+
+
+            })
+        }
+
+        // Turn on the listener
+        socket.on("deliveryBoy-location-update", handleDeliveryBoyLocationUpdate);
+
+        // Turn off the listener on cleanup
+        return ()=>{
+            socket.off("deliveryBoy-location-update", handleDeliveryBoyLocationUpdate);
+        };
+
+    }, [socket]);
 
     return (
         <div className='max-w-4xl mx-auto p-4 flex flex-col gap-6'>

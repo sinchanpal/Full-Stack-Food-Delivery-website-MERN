@@ -22,6 +22,20 @@ export const socketHandler = (io) => {
             }
         })
 
+        //? Delivery Boy Location -> Customer
+        socket.on('update-deliveryBoy-location',(data)=>{
+            // data will contain: { customerId, lat, lon }
+            const customerSocketId = userSocketMap[data.customerId];  //we find the socketId of the customer 
+
+            if(customerSocketId){
+                // Instantly forward the exact coordinates to that specific customer
+                io.to(customerSocketId).emit('deliveryBoy-location-update',{
+                    lat: data.lat,
+                    lon: data.lon
+                });
+            }
+        });
+
 
         socket.on('disconnect', async () => { //disconnect is a built-in event in socket.io that is triggered whenever a client disconnects from the server, whether it's due to closing the browser, losing internet connection, or any other reason. When this event occurs, we want remove the entry for this user from our userSocketMap
 

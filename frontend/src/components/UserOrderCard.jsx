@@ -1,9 +1,72 @@
-import React from 'react'
+import React, { useState } from 'react'
 import { useNavigate } from 'react-router-dom'
+import { FaStar, FaRegStar } from "react-icons/fa";
+import axios from 'axios';
+import { serverUrl } from '../App';
+
+
+//? 1. MINI COMPONENT: We create a small StarRating component just for handling the hover/click effects
+
+//?----------------------------------------------------------------------------------------------------------
+
+const StarRating = ({ itemId, onRate }) => {
+    const [rating, setRating] = useState(0);
+    const [hoverRating, setHoverRating] = useState(0);
+
+    const handleClick = (star) => {
+        setRating(star); // Update the visual stars instantly
+        onRate(itemId, star);   // Send the rating to the backend . onRate(itemId, star) is the exact same thing as running handleRateItem(itemId, star) back up inside the Parent component!
+        alert(`You rated item ${itemId} with ${star} stars!`); // Optional: Show an alert or toast
+    }
+
+    return (
+        <div className="flex items-center gap-1 mt-2 border-t pt-2">
+            <span className="text-xs font-semibold text-gray-500 mr-1">Rate:</span>
+            {
+                [1, 2, 3, 4, 5].map((star) => (
+                    <button
+                        key={star}
+                        className="cursor-pointer transition-transform hover:scale-125"
+                        onClick={() => handleClick(star)}
+                        onMouseEnter={() => setHoverRating(star)}
+                        onMouseLeave={() => setHoverRating(0)}
+                    >
+                        {star <= (hoverRating || rating) ?
+                            (<FaStar className="text-yellow-400 text-sm" />)
+                            :
+                            (<FaRegStar className="text-gray-300 text-sm" />)}
+
+                    </button>
+                ))
+            }
+
+        </div>
+    )
+}
+
+//?---------------------------------------------------------------------------------------------------------
+
+
+
 
 const UserOrderCard = ({ data }) => {
 
     const navigate = useNavigate();
+
+    const handleRateItem =async (itemId , starValue) =>{
+        try {
+            const result = await axios.post(`${serverUrl}/api/item/rate-item`,{
+                itemId,
+                star: starValue
+            }, {withCredentials: true});
+
+            console.log("Rating successful:", result.data);
+        } catch (error) {
+            console.log("Error rating item:", error);
+        }
+    };
+
+
     return (
         <div className='bg-white rounded-lg shadow p-4 space-y-4'>
             <div className='flex justify-between border-b pb-2'>
@@ -36,6 +99,16 @@ const UserOrderCard = ({ data }) => {
                                 <img src={shopItem?.item?.image} alt={shopItem?.item?.name} className='w-full h-24 object-cover rounded' />
                                 <p className='text-sm font-semibold mt-1'>{shopItem?.item?.name}</p>
                                 <p>₹{shopItem?.item?.price} X {shopItem?.quantity}  </p>
+
+                                {/* 3. THE RATING RENDER: Only show stars if the food is delivered! */}
+                                {shopOrder?.status === "delivered" && (
+                                    <div className='mt-auto'>
+                                        <StarRating
+                                            itemId={shopItem?.item?._id}
+                                            onRate={handleRateItem} //passing the entire function as a variable.
+                                        />
+                                    </div>
+                                )}
                             </div>
                         ))}
                     </div>

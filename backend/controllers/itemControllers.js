@@ -186,3 +186,49 @@ export const getItemsBySearchBar = async (req, res) => {
         return res.status(500).json({ message: "Error in getItemsBySearchBar function in itemControllers.js !", error });
     }
 }
+
+//?When a user clicks a star (say, 4 stars) on the frontend, this controller will receive that number, find the item, check if the user already rated it, and recalculate the overall average.
+export const rateItem = async (req, res) => {
+    try {
+        const { itemId, star } = req.body;
+        const userId = req.userId;
+
+        if (!star || star < 1 || star > 5) {
+            return res.status(400).json({ message: "Please provide a valid rating between 1 and 5." });
+        }
+
+        const item = await Item.findById(itemId);
+
+        if (!item) {
+            return res.status(404).json({ message: "Item not found!" });
+        }
+
+        // 1. Check if this specific user has already rated this item
+        const existingRatingIndex = item.reviews.findIndex(review => review.user.toString() === userId);
+
+        if (existingRatingIndex !== -1) {
+            // User already rated it! Update their existing star rating.
+            item.reviews[existingRatingIndex].star = star;
+        } else {
+            // New rating! Add it to the reviews array and increase the total count.
+            item.reviews.push({ user: userId, star });
+            item.rating.count = item.reviews.length;
+        }
+
+        // 2. Recalculate the overall Average Rating
+        // We sum up all the stars in the reviews array...
+        const totalStars = item.reviews.reduce((sum, review) => sum + review.star, 0);
+
+        item.rating.average = Number((totalStars / item.reviews.length).toFixed(2)); //...and divide by the total number of ratings to get the new average. We also use toFixed(2) to round it to 2 decimal places.
+
+        // 3. Save the updated item
+        await item.save();
+
+        item.populate('shop', 'name'); //we populate the shop field with shop name to send it in response   
+
+        return res.status(200).json(item);
+
+    } catch (error) {
+        return res.status(500).json({ message: "Error in rateItem function!", error });
+    }
+}

@@ -12,7 +12,7 @@ const OwnerOrderCard = ({ data }) => {
 
   const [availableDeliveryBoys, setAvailableDeliveryBoys] = useState([]);
   const dispatch = useDispatch();
-  
+
   const handleStatusChange = async (status) => {
     try {
 
@@ -79,12 +79,15 @@ const OwnerOrderCard = ({ data }) => {
       <div className='flex justify-between items-center mt-auto pt-3 border-t border-gray-400'>
         <span className='text-sm'>Status: <span className='font-semibold capitalize text-[#ff4d2d]'>{data?.shopOrders[0]?.status}</span></span>
 
-        <select onChange={(e) => handleStatusChange(e.target.value)} className='rounded-md border px-3 py-1 text-sm focus:outline-none focus:ring-2 border-[rgb(255,77,45)] text-[#ff4d2d]'>
-          <option >Change Status</option>
-          <option value="pending">Pending</option>
-          <option value="preparing">Preparing</option>
-          <option value="out-for-delivery">Out for delivery</option>
-        </select>
+        {/* here if order status is not delivered then only the owner can change the order status  */}
+        {data?.shopOrders[0]?.status != "delivered" && (
+          <select onChange={(e) => handleStatusChange(e.target.value)} className='rounded-md border px-3 py-1 text-sm focus:outline-none focus:ring-2 border-[rgb(255,77,45)] text-[#ff4d2d]'>
+            <option >Change Status</option>
+            <option value="pending">Pending</option>
+            <option value="preparing">Preparing</option>
+            <option value="out-for-delivery">Out for delivery</option>
+          </select>)}
+
       </div>
 
       {

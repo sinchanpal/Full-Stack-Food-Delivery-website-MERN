@@ -47,7 +47,22 @@ const itemSchema = new mongoose.Schema({
     rating: {
         average: { type: Number, default: 0 }, //average rating of the number of ratings
         count: { type: Number, default: 0 }  //total number of ratings recieved for this item
-    }
+    },
+    reviews:[  //array of reviews for this item, each review will have userId and star rating
+        {
+            user:{
+                type: mongoose.Schema.Types.ObjectId,
+                ref: "User",
+                required:true
+            },
+            star:{
+                type: Number,
+                required:true,
+                min: 1,
+                max: 5
+            }
+        }
+    ]
 })
 
 const Item = mongoose.model("Item", itemSchema);

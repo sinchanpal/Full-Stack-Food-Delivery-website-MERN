@@ -85,8 +85,8 @@ const ItemCard = ({ item }) => {
 
                 {/* display stars */}
                 <div className='flex items-center gap-1 mt-1'>
-                    {renderStars(item.rating?.average || 0)} {/*here we send average rating from item model  */}
-                    <span className='text-gray-600 text-sm'>({item.rating.count})</span>
+                    {renderStars(item?.rating?.average || 0)} {/*here we send average rating from item model  */}
+                    <span className='text-gray-600 text-sm'>({item?.rating?.count})</span>
 
                 </div>
             </div>

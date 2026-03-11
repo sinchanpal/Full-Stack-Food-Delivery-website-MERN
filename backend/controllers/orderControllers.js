@@ -406,8 +406,8 @@ export const updateOrderStatus = async (req, res) => {
                         deliveryBoyId: boyId,
                         assignmentId: newDeliveryAssignment._id,
                         orderId: order._id,
-                        shopName: updatedShopOrder.shop.name, 
-                        shopAddress: updatedShopOrder.shop.address, 
+                        shopName: updatedShopOrder.shop.name,
+                        shopAddress: updatedShopOrder.shop.address,
                         deliveryAddress: order.deliveryAddress,
                         shopOrderItems: updatedShopOrder.shopOrderItems,
                         subTotal: updatedShopOrder.subTotal
@@ -653,6 +653,24 @@ export const verifyDeliveryOtp = async (req, res) => {
             assignedTo: shopOrder.assignedDeliveryBoy
 
         });
+
+        //TODO: here this logic is not worked when delivery boy click verify  otp after that in customer my order section the particular order status does't change we have to check it later 
+        //? Notify the customer that their order has been successfully delivered!
+        const io = req.app.get("io");
+
+        if (io && order?.user) {
+            const customerId = order.user._id.toString();
+            const customerSocketId = userSocketMap[customerId];
+
+            if (customerSocketId) {
+                io.to(customerSocketId).emit("order-status-updated", {
+                    orderId: orderId, // Send the main order ID
+                    shopOrderId: shopOrder?.shop, // Send the specific shop's order ID
+                    status: "delivered",              // Send the new status string (e.g. "preparing")
+                    userId: customerId  // Send the user ID to identify which customer's order status is updated
+                });
+            }
+        }
 
         return res.status(200).json({ message: "Order Delivered Successfully!" });
 

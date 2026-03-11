@@ -87,7 +87,10 @@ const userSlice = createSlice({
             const order = state.myOrders.find(o => o._id == orderId);
 
             if (order) {
-                const shopOrder = order.shopOrders.find(so => so.shop._id == shopOrderId);
+                const shopOrder = order.shopOrders.find(so =>
+                    so.shop._id == shopOrderId ||   // Matches if Shop is populated
+                    so.shop == shopOrderId ||       // Matches if Shop is just a raw ID
+                    so._id == shopOrderId);         // Matches if backend sent the Sub-document ID
 
                 if (shopOrder) {
                     shopOrder.status = status;
@@ -100,7 +103,7 @@ const userSlice = createSlice({
         setItemsBySearchBar: (state, action) => {
             state.itemsBySearchBar = action.payload;
         },
-        setSocket: (state,action)=>{
+        setSocket: (state, action) => {
             state.socket = action.payload;
         }
 
@@ -108,5 +111,5 @@ const userSlice = createSlice({
     }
 })
 
-export const { setUserData, setUserCity, setUserState, setUserAddress, setAllShopsInUserCity, setAllItemsInUserCity, addToCart, updateQuantity, removeCartItem, setMyOrders, addMyOrders, setCartItems, updateMyOrderStatus, setItemsBySearchBar,setSocket } = userSlice.actions
+export const { setUserData, setUserCity, setUserState, setUserAddress, setAllShopsInUserCity, setAllItemsInUserCity, addToCart, updateQuantity, removeCartItem, setMyOrders, addMyOrders, setCartItems, updateMyOrderStatus, setItemsBySearchBar, setSocket } = userSlice.actions
 export default userSlice.reducer

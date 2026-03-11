@@ -37,6 +37,16 @@ const DeliveryDashboard = () => {
       const result = await axios.post(`${serverUrl}/api/order/verify-delivery-otp`, { otp, orderId, shopOrderId, }, { withCredentials: true })
       console.log(result.data);
       setOtpSection(false);
+
+      // Clear the current order so the dashboard goes back to the "Available Orders" view
+      setCurrentAcceptedOrder(null);
+
+      // Optional: Give the delivery boy a nice success message!
+      alert("✅ Order Delivered Successfully! Great job.");
+
+      //Re-fetch available orders just in case new ones popped up while they were driving
+      getDeliveryBoyAssignments();
+
     } catch (error) {
       console.log("Error in handelVerifyOTP in DeliveryDashboard.jsx ", error);
     }
@@ -83,6 +93,62 @@ const DeliveryDashboard = () => {
 
 
 
+  //? This useEffect is for tracking delivery boy GPS location and send the updated location to backend via socket so that we can show the real time location of delivery boy in customer order tracking page (TrackCustomerOrder.jsx)
+  useEffect(() => {
+
+    if (!socket || !currentAcceptedOrder) return; //if socket is not connected yet then we return from here because we can't listen any socket event without socket connection
+
+    // navigator.geolocation.watchPosition runs every time the device's GPS location changes
+    const watchId = navigator.geolocation.watchPosition(
+
+      (position) => {
+        const { latitude, longitude } = position.coords;
+
+        // 1. Emit the location to the backend in socket.js(for the customer)
+        socket.emit("update-deliveryBoy-location", {
+          customerId: currentAcceptedOrder.user._id,
+          lat: latitude,
+          lon: longitude
+        });
+
+        // 2. Update the Delivery Boy's OWN local state with the new location so their map moves!
+        setCurrentAcceptedOrder((prevOrder) => {
+          if (!prevOrder) return prevOrder;
+
+          return {
+            ...prevOrder,
+            deliveryBoyLocation: {
+              lat: latitude,
+              lon: longitude
+            }
+          };
+
+        });
+
+
+      },
+
+      (error) => {
+        console.log("Error watching GPS location:", error);
+      },
+
+      {
+        enableHighAccuracy: true, // Use GPS for more accurate location
+        maximumAge: 0, // Don't use cached location
+        timeout: 5000 // Timeout after 5 seconds.If you can't find the GPS signal in 5 seconds (5000 milliseconds), stop trying and give me an error.
+      }
+    );
+
+    // CLEANUP: Stop tracking their GPS when they deliver the order or leave the page. 
+    // This saves their phone battery!
+    return () => {
+      navigator.geolocation.clearWatch(watchId);
+    }
+
+  }, [socket, currentAcceptedOrder]);
+
+
+
 
   //This function works when delivery boy excepts the order
   const getCurrentAcceptOrder = async () => {
@@ -120,7 +186,7 @@ const DeliveryDashboard = () => {
             <span className='font-semibold text-[#ff4d2d] text-lg'>Current Address :</span> {userAddress}
           </p>
           <p className='text-gray-700 text-sm'>
-            <span className='font-semibold text-[#ff4d2d] text-lg'>latitude :</span> {userData?.location?.coordinates?.[1]} ,<span className='font-semibold text-[#ff4d2d] text-lg'>longitude :</span> {userData?.location?.coordinates?.[0]}
+            <span className='font-semibold text-[#ff4d2d] text-lg'>latitude :</span> {currentAcceptedOrder?.deliveryBoyLocation?.lat || userData?.location?.coordinates?.[1]} ,<span className='font-semibold text-[#ff4d2d] text-lg'>longitude :</span> {currentAcceptedOrder?.deliveryBoyLocation?.lon || userData?.location?.coordinates?.[0]}
           </p>
         </div>
 
@@ -165,7 +231,14 @@ const DeliveryDashboard = () => {
             </div>
 
             {/* This is a map for showing deliveryBoy and customer home */}
-            <DeliveryBoyTracking data={currentAcceptedOrder} />
+
+            {currentAcceptedOrder?.deliveryBoyLocation?.lat && currentAcceptedOrder?.deliveryBoyLocation?.lon ? (<DeliveryBoyTracking data={currentAcceptedOrder} />) :
+              (
+                <div className='w-full h-[400px] mt-3 rounded-xl bg-gray-200 flex items-center justify-center text-gray-500 font-semibold'>
+                  Locating GPS... 📍
+                </div>
+              )}
+
 
             {/* when a deliveryBoy click on mark as delivered button then a otp is send to the particular customer then the deliveryBoy verify the otp  */}
             {!otpSection &&
