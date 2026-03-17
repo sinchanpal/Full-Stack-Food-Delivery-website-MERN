@@ -678,3 +678,65 @@ export const verifyDeliveryOtp = async (req, res) => {
         return res.status(500).json({ message: "Error in verifyDeliveryOtp controller", error: error.message });
     }
 }
+
+
+
+
+//? Get today's delivery stats and earnings for the Delivery Boy dashboard chart
+export const getTodayDeliveryStats = async (req, res) => {
+    try {
+        const deliveryBoyId = req.userId;
+
+        // 1. Get the exact start and end time of TODAY
+        const startOfDay = new Date();
+        startOfDay.setHours(0, 0, 0, 0); // 12:00:00 AM today
+
+        const endOfDay = new Date();
+        endOfDay.setHours(23, 59, 59, 999); // 11:59:59 PM today
+
+        // 2. Find all orders where THIS delivery boy successfully delivered a shopOrder TODAY
+        const orders = await Order.find({
+            "shopOrders.assignedDeliveryBoy": deliveryBoyId,
+            "shopOrders.status": "delivered",
+            "shopOrders.deliverAt": { $gte: startOfDay, $lte: endOfDay } //filter shopOrders which are delivered today
+        });
+
+        let totalEarnings = 0;
+        const hourlyCounts = {}; // This will hold data like: { "12:00": 2, "13:00": 3 }
+
+        // 3. Loop through the orders to calculate earnings and group by hour
+        orders.forEach(order => {
+            order.shopOrders.forEach(so => {
+                if (so.assignedDeliveryBoy.toString() === deliveryBoyId && so.status === "delivered" && so.deliverAt >= startOfDay && so.deliverAt <= endOfDay) {
+                    totalEarnings += 40; // Delivery boy earns flat ₹40 per delivery
+
+                    // Extract the hour (e.g., if delivered at 14:35, we extract "14")
+                    const date = new Date(so.deliverAt);
+                    const hourString = date.getHours().toString().padStart(2, '0') + ":00"; // e.g., "14:00"
+
+                    // Increment the count for this specific hour
+
+                    if (hourlyCounts[hourString]) {
+                        hourlyCounts[hourString] += 1;
+                    } else {
+                        hourlyCounts[hourString] = 1;
+                    }
+                }
+            });
+        });
+
+        // 4. Format the data perfectly for the Recharts library on the frontend
+        // It expects an array of objects: [{ time: "12:00", deliveries: 2 }, ...]
+
+        const chartData = Object.keys(hourlyCounts).sort().map(hour => ({
+            time: hour,
+            deliveries: hourlyCounts[hour]
+        }));
+
+
+        return res.status(200).json({ totalEarnings, chartData });
+    } catch (error) {
+        console.error("Error in getTodayDeliveryStats:", error);
+        return res.status(500).json({ message: "Error fetching delivery stats", error });
+    }
+}

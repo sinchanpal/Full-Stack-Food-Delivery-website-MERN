@@ -4,6 +4,7 @@ import { useDispatch, useSelector } from 'react-redux'
 import axios from 'axios';
 import { serverUrl } from '../App';
 import DeliveryBoyTracking from './DeliveryBoyTracking';
+import { Bar, BarChart, CartesianGrid, ResponsiveContainer, Tooltip, XAxis, YAxis } from 'recharts';
 
 const DeliveryDashboard = () => {
 
@@ -14,6 +15,18 @@ const DeliveryDashboard = () => {
   const [otpSection, setOtpSection] = useState(false);
   const [otp, setOpt] = useState("");
 
+  const [dailyStats, setDailyStats] = useState({ totalEarnings: 0, chartData: [] })
+
+
+  //? Fetch today's delivery stats
+  const fetchDailyStats = async () => {
+    try {
+      const result = await axios.get(`${serverUrl}/api/order/delivery-stats`, { withCredentials: true });
+      setDailyStats(result.data);
+    } catch (error) {
+      console.log("Error fetching daily stats:", error);
+    }
+  }
 
 
   //for send a otp to customer
@@ -47,6 +60,9 @@ const DeliveryDashboard = () => {
       //Re-fetch available orders just in case new ones popped up while they were driving
       getDeliveryBoyAssignments();
 
+      //Re-fetch the stats so the chart and earnings update instantly!
+      fetchDailyStats();
+
     } catch (error) {
       console.log("Error in handelVerifyOTP in DeliveryDashboard.jsx ", error);
     }
@@ -66,6 +82,7 @@ const DeliveryDashboard = () => {
   useEffect(() => {
     getDeliveryBoyAssignments();
     getCurrentAcceptOrder();
+    fetchDailyStats();
   }, [userData, userAddress]);
 
 
@@ -188,6 +205,33 @@ const DeliveryDashboard = () => {
           <p className='text-gray-700 text-sm'>
             <span className='font-semibold text-[#ff4d2d] text-lg'>latitude :</span> {currentAcceptedOrder?.deliveryBoyLocation?.lat || userData?.location?.coordinates?.[1]} ,<span className='font-semibold text-[#ff4d2d] text-lg'>longitude :</span> {currentAcceptedOrder?.deliveryBoyLocation?.lon || userData?.location?.coordinates?.[0]}
           </p>
+        </div>
+
+
+        {/* Daily Delivery Stats Visualization Section */}
+        <div className='bg-white rounded-2xl shadow-md p-6 w-[90%] border border-orange-100'>
+          <h2 className='text-lg font-bold text-[#ff4d2d] mb-6'>Today Deliveries</h2>
+
+          {/* The Chart */}
+          <div className='w-full h-[200px] mb-4'>
+            <ResponsiveContainer width="100%" height="100%">
+              <BarChart data={dailyStats.chartData} margin={{ top: 10, right: 10, left: -25, bottom: 0 }}>
+                
+                <CartesianGrid strokeDasharray="3 3" vertical={false} stroke="#e5e7eb" />
+                <XAxis dataKey="time" tick={{ fontSize: 12, fill: '#6b7280' }} axisLine={false} tickLine={false} />
+                <YAxis allowDecimals={false} tick={{ fontSize: 12, fill: '#6b7280' }} axisLine={false} tickLine={false} />
+                <Tooltip cursor={{ fill: '#fef2f2' }} contentStyle={{ borderRadius: '8px', border: 'none', boxShadow: '0 4px 6px -1px rgb(0 0 0 / 0.1)' }} />
+                <Bar dataKey="deliveries" fill="#ff4d2d" radius={[4, 4, 0, 0]} barSize={40} />
+
+              </BarChart>
+            </ResponsiveContainer>
+          </div>
+
+          {/* Earnings Display */}
+          <div className='mt-6 bg-white border shadow-sm rounded-2xl py-4 flex flex-col items-center justify-center max-w-[300px] mx-auto'>
+            <p className='font-bold text-gray-700 text-lg'>Today's Earning</p>
+            <p className='text-3xl font-bold text-green-600 mt-1'>₹{dailyStats.totalEarnings}</p>
+          </div>
         </div>
 
 
