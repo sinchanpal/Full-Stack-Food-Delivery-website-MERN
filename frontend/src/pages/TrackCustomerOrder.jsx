@@ -5,13 +5,14 @@ import { serverUrl } from '../App';
 import { IoMdArrowRoundBack } from "react-icons/io";
 import DeliveryBoyTracking from '../components/DeliveryBoyTracking';
 import { useSelector } from 'react-redux';
+import { useSocketContext } from '../context/SocketContext';
 
 const TrackCustomerOrder = () => {
 
     const { orderId } = useParams();
     const navigate = useNavigate();
     const [currentTrackedOrder, setCurrentTrackedOrder] = useState();
-    const { socket } = useSelector(state => state.user);
+    const { socket } = useSocketContext();
 
     const handleGetOrderById = async () => {
         try {
@@ -28,7 +29,7 @@ const TrackCustomerOrder = () => {
     }, [orderId])
 
 
-    
+
     useEffect(() => {
 
         if (!socket) return;
@@ -73,7 +74,7 @@ const TrackCustomerOrder = () => {
         socket.on("deliveryBoy-location-update", handleDeliveryBoyLocationUpdate);
 
         // Turn off the listener on cleanup
-        return ()=>{
+        return () => {
             socket.off("deliveryBoy-location-update", handleDeliveryBoyLocationUpdate);
         };
 

@@ -16,7 +16,7 @@ const userSlice = createSlice({
         myOrders: [], //this state is for store all orders of current user Or owners shop
         myOrderStatus: null,
         itemsBySearchBar: null, //here we store all the items related to user search query on search bar
-        socket: null, //here we store our socket connection instance which we create in App.jsx file so that we can use this socket connection instance in any component by using useSelector hook and get the real time updates of order status when owner change the status of shopOrder in his orders section
+
 
     },
     reducers: {
@@ -102,14 +102,11 @@ const userSlice = createSlice({
 
         setItemsBySearchBar: (state, action) => {
             state.itemsBySearchBar = action.payload;
-        },
-        setSocket: (state, action) => {
-            state.socket = action.payload;
         }
 
 
     }
 })
 
-export const { setUserData, setUserCity, setUserState, setUserAddress, setAllShopsInUserCity, setAllItemsInUserCity, addToCart, updateQuantity, removeCartItem, setMyOrders, addMyOrders, setCartItems, updateMyOrderStatus, setItemsBySearchBar, setSocket } = userSlice.actions
+export const { setUserData, setUserCity, setUserState, setUserAddress, setAllShopsInUserCity, setAllItemsInUserCity, addToCart, updateQuantity, removeCartItem, setMyOrders, addMyOrders, setCartItems, updateMyOrderStatus, setItemsBySearchBar } = userSlice.actions
 export default userSlice.reducer

@@ -5,10 +5,12 @@ import axios from 'axios';
 import { serverUrl } from '../App';
 import DeliveryBoyTracking from './DeliveryBoyTracking';
 import { Bar, BarChart, CartesianGrid, ResponsiveContainer, Tooltip, XAxis, YAxis } from 'recharts';
+import { useSocketContext } from '../context/SocketContext';
 
 const DeliveryDashboard = () => {
 
-  const { userData, userAddress, socket } = useSelector(state => state.user);
+  const { userData, userAddress } = useSelector(state => state.user);
+  const { socket } = useSocketContext();
   const [availableAssignments, setAvailableAssignments] = useState([]);
   const [currentAcceptedOrder, setCurrentAcceptedOrder] = useState(null);
 
@@ -216,7 +218,7 @@ const DeliveryDashboard = () => {
           <div className='w-full h-[200px] mb-4'>
             <ResponsiveContainer width="100%" height="100%">
               <BarChart data={dailyStats.chartData} margin={{ top: 10, right: 10, left: -25, bottom: 0 }}>
-                
+
                 <CartesianGrid strokeDasharray="3 3" vertical={false} stroke="#e5e7eb" />
                 <XAxis dataKey="time" tick={{ fontSize: 12, fill: '#6b7280' }} axisLine={false} tickLine={false} />
                 <YAxis allowDecimals={false} tick={{ fontSize: 12, fill: '#6b7280' }} axisLine={false} tickLine={false} />

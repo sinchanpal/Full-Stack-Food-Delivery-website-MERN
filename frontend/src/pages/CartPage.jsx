@@ -15,11 +15,11 @@ const CartPage = () => {
         <div className='min-h-screen bg-[#fff9f6] flex justify-center p-6'>
             <div className='w-full max-w-[800px]'>
                 <div className='flex items-center gap-5 mb-6'>
-                    <div className='absolute top-5 left-5 z-10 mb-2'>
 
-                        {/* Back Button on click we navigate to home page */}
-                        <IoMdArrowRoundBack size={45} className='text-[#ff4d2d] cursor-pointer' onClick={() => navigate('/')} />
-                    </div>
+
+                    {/* Back Button on click we navigate to home page */}
+                    <IoMdArrowRoundBack size={45} className='text-[#ff4d2d] cursor-pointer' onClick={() => navigate('/')} />
+
                     <h1 className='text-2xl font-bold'>Your Cart </h1>
                     <FaOpencart className='text-[#ff4d2d]' size={35} />
                 </div>
