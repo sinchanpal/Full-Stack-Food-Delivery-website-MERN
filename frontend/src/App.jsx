@@ -21,9 +21,10 @@ import UseGetMyOrders from './hooks/UseGetMyOrders'
 import UseUpdateLocation from './hooks/UseUpdateLocation'
 import TrackCustomerOrder from './pages/TrackCustomerOrder'
 import ShopDetails from './pages/ShopDetails'
+import { Toaster } from 'react-hot-toast';
 
 //using this url now frontend can talk to the backend live on render
-export const serverUrl = "https://bitehub-backend-42u0.onrender.com"  
+export const serverUrl = "https://bitehub-backend-42u0.onrender.com";
 
 
 function App() {
@@ -42,7 +43,8 @@ function App() {
 
   return (
     <>
-
+      {/* add the Toaster component at the very top level of your app so toasts can pop up anywhere. */}
+      <Toaster position="top-center" reverseOrder={false} />
 
       <Routes>
         {/* //! Note If you want to check Signup or SignIn page 1st change the navigate setting here or you directly move to home page if got userData */}

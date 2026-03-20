@@ -617,9 +617,13 @@ export const sendDeliveryOTP = async (req, res) => {
         shopOrder.otpExpires = Date.now() + 5 * 60 * 1000; //otp expires in 5 min
 
         await order.save();
-        await sendDeliveryOtpMail(order?.user, otp);
+        // await sendDeliveryOtpMail(order?.user, otp);
 
-        return res.status(200).json({ message: `Delivery Otp is successfully send to ${order?.user?.fullName}` });
+        return res.status(200).json({ 
+            message: `OTP generated successfully!`,
+            otp: otp // <--- We are sending the actual OTP back to the frontend!
+        });
+        
     } catch (error) {
 
         console.log("🚨 SEND OTP ERROR:", error);

@@ -6,6 +6,7 @@ import { serverUrl } from '../App';
 import DeliveryBoyTracking from './DeliveryBoyTracking';
 import { Bar, BarChart, CartesianGrid, ResponsiveContainer, Tooltip, XAxis, YAxis } from 'recharts';
 import { useSocketContext } from '../context/SocketContext';
+import toast from 'react-hot-toast';
 
 const DeliveryDashboard = () => {
 
@@ -37,7 +38,22 @@ const DeliveryDashboard = () => {
     try {
       setOtpSection(true);
       const result = await axios.post(`${serverUrl}/api/order/send-delivery-otp`, { orderId, shopOrderId }, { withCredentials: true })
+
       console.log(result.data);
+
+      // Extract the OTP from the backend response
+      const getOtp = result.data.otp;
+
+      // Show a highly visible, custom toast notification that stays open longer (10 seconds)
+      toast.success(
+        <div>
+          <b>Delivery Confirmation OTP</b><br />
+          Hi👋  Your OTP for delivery Confirmation is<br />
+          <span style={{ fontSize: '24px', fontWeight: 'bold', color: '#ff4d2d' }}>{getOtp}</span>
+        </div>,
+        { duration: 10000 } // Stays on screen for 10 seconds
+      );
+
     } catch (error) {
       console.log("Error in handelSendOTP in DeliveryDashboard.jsx ", error);
     }
@@ -57,7 +73,7 @@ const DeliveryDashboard = () => {
       setCurrentAcceptedOrder(null);
 
       // Optional: Give the delivery boy a nice success message!
-      alert("✅ Order Delivered Successfully! Great job.");
+      toast.success("Order Delivered Successfully! Great job.", { duration: 4000 }); // Stays on screen for 4 seconds
 
       //Re-fetch available orders just in case new ones popped up while they were driving
       getDeliveryBoyAssignments();
