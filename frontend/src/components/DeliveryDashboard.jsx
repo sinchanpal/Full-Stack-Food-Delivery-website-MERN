@@ -42,7 +42,12 @@ const DeliveryDashboard = () => {
       console.log(result.data);
 
       // Just tell the delivery boy to ask the customer!
-      toast.success(<p className='text-2xl text-green-500'>OTP sent to the Customer's screen! Ask them for the code.</p>, { duration: 10000 });
+      toast.success(
+        <div>
+          <span style={{ fontSize: '12px', color: 'gray' }}>OTP sent to the Customer's screen! Ask them for the code.</span>
+        </div>,
+        { duration: 10000 } // Stays on screen for 10 seconds so they have time to read it!
+      );
 
     } catch (error) {
       console.log("Error in handelSendOTP in DeliveryDashboard.jsx ", error);
@@ -63,8 +68,13 @@ const DeliveryDashboard = () => {
       setCurrentAcceptedOrder(null);
 
       // Optional: Give the delivery boy a nice success message!
-      toast.success(<p className='text-2xl text-green-500'>Order Delivered Successfully! Great job.</p>, { duration: 10000 }); // Stays on screen for 4 seconds
-      
+      toast.success(
+        <div>
+          <span style={{ fontSize: '12px', color: 'gray' }}>Order Delivered Successfully! Great job.</span>
+        </div>,
+        { duration: 10000 } // Stays on screen for 10 seconds so they have time to read it!
+      );
+
       //again clear the otp section
       setOpt("");
 
