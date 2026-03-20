@@ -7,8 +7,9 @@ dotenv.config();
 // Create a test account or replace with real credentials.
 const transporter = nodemailer.createTransport({
     host: "smtp.gmail.com",
-    port: 465,
-    secure: true, // true for 465, false for other ports
+    port: 587,                // <--- CHANGE FROM 465 to 587
+    secure: false,            // <--- CHANGE FROM true to false (false means use STARTTLS)
+    requireTLS: true,         // <--- ADD THIS LINE to force secure connection
     auth: {
         user: process.env.EMAIL,     // Read from .env
         pass: process.env.APP_PASS,  // Read from .env
