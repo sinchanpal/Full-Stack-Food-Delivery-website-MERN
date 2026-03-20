@@ -41,18 +41,8 @@ const DeliveryDashboard = () => {
 
       console.log(result.data);
 
-      // Extract the OTP from the backend response
-      const getOtp = result.data.otp;
-
-      // Show a highly visible, custom toast notification that stays open longer (10 seconds)
-      toast.success(
-        <div>
-          <b>Delivery Confirmation OTP</b><br />
-          Hi👋  Your OTP for delivery Confirmation is<br />
-          <span style={{ fontSize: '24px', fontWeight: 'bold', color: '#ff4d2d' }}>{getOtp}</span>
-        </div>,
-        { duration: 10000 } // Stays on screen for 10 seconds
-      );
+      // Just tell the delivery boy to ask the customer!
+      toast.success("OTP sent to the Customer's screen! Ask them for the code.");
 
     } catch (error) {
       console.log("Error in handelSendOTP in DeliveryDashboard.jsx ", error);

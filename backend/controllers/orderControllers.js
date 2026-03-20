@@ -619,11 +619,22 @@ export const sendDeliveryOTP = async (req, res) => {
         await order.save();
         // await sendDeliveryOtpMail(order?.user, otp);
 
+        // Grab the Socket.io instance you saved in index.js
+        const io = req.app.get('io'); 
+        
+        if (io) {
+            // Emit a real-time event with the Customer's ID and the OTP
+            io.emit("receive-delivery-otp", {
+                customerId: order.user._id.toString(),
+                otp: otp
+            });
+        }
+
         return res.status(200).json({ 
             message: `OTP generated successfully!`,
             otp: otp // <--- We are sending the actual OTP back to the frontend!
         });
-        
+
     } catch (error) {
 
         console.log("🚨 SEND OTP ERROR:", error);

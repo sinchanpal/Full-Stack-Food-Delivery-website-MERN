@@ -4,8 +4,9 @@ import { useNavigate, useParams } from 'react-router-dom'
 import { serverUrl } from '../App';
 import { IoMdArrowRoundBack } from "react-icons/io";
 import DeliveryBoyTracking from '../components/DeliveryBoyTracking';
-import { useSelector } from 'react-redux';
 import { useSocketContext } from '../context/SocketContext';
+import toast from 'react-hot-toast';
+import { useSelector } from 'react-redux';
 
 const TrackCustomerOrder = () => {
 
@@ -13,6 +14,7 @@ const TrackCustomerOrder = () => {
     const navigate = useNavigate();
     const [currentTrackedOrder, setCurrentTrackedOrder] = useState();
     const { socket } = useSocketContext();
+    const { userData } = useSelector(state => state.user);
 
     const handleGetOrderById = async () => {
         try {
@@ -27,6 +29,38 @@ const TrackCustomerOrder = () => {
     useEffect(() => {
         handleGetOrderById();
     }, [orderId])
+
+
+
+    // Listen for the OTP from the Delivery Boy!
+    useEffect(() => {
+        if (!socket || !userData) return;
+
+        const handleReceiveOtp = (data) => {
+            // Check if this OTP is meant for THIS specific logged-in customer
+            if (data.customerId === userData._id) {
+
+                // Show the beautiful OTP Toast to the Customer!
+                toast.success(
+                    <div>
+                        <b>Delivery Confirmation OTP</b><br />
+                        Hi👋 Your OTP to receive your food is:<br />
+                        <span style={{ fontSize: '24px', fontWeight: 'bold', color: '#ff4d2d' }}>{data.otp}</span><br />
+                        <span style={{ fontSize: '12px', color: 'gray' }}>Please read this to the delivery partner.</span>
+                    </div>,
+                    { duration: 20000 } // Stays on screen for 20 seconds so they have time to read it!
+                );
+            }
+        };
+
+        // Turn on the listener
+        socket.on("receive-delivery-otp", handleReceiveOtp);
+
+        // Cleanup when they leave the page
+        return () => {
+            socket.off("receive-delivery-otp", handleReceiveOtp);
+        };
+    }, [socket, userData]);
 
 
 
@@ -92,7 +126,7 @@ const TrackCustomerOrder = () => {
             </div>
 
             {currentTrackedOrder?.shopOrders?.map((shopOrder, index) => (
-                <>
+                
                     <div className='bg-white p-4 rounded-2xl shadow-md border border-orange-100 space-y-4 w-full' key={index}>
                         <p className='text-lg font-bold mb-2 text-[#ff4d2d]'>Shop Name : {shopOrder?.shop?.name}</p>
                         <p className='font-semibold text-gray-600'>Ordered Items : {shopOrder?.shopOrderItems?.map((item) => item.name).join(",")}</p>
@@ -138,7 +172,7 @@ const TrackCustomerOrder = () => {
                     </div>
 
 
-                </>
+                
             ))}
 
         </div>
