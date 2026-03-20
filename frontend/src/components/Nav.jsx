@@ -76,7 +76,7 @@ const Nav = () => {
                     </div>}
 
 
-                <h1 className='text-3xl font-bold mb-2 text-[#ff4d2d]'>Vingo</h1>
+                <h1 className='text-3xl font-bold mb-2 text-[#ff4d2d]'>BiteHub</h1>
 
                 {/* Search food section show this search section if userData role is "user"*/}
 
