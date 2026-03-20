@@ -33,8 +33,8 @@ export const signup = async (req, res) => {
 
         const token = genToken(newUser._id);
         res.cookie("token", token, {
-            secure: false,
-            sameSite: "strict",
+            secure: true,
+            sameSite: "none",
             maxAge: 7 * 24 * 60 * 60 * 1000,  //7 day in milisecond
             httpOnly: true
         })
@@ -73,8 +73,8 @@ export const signin = async (req, res) => {
 
         const token = genToken(existingUser._id);
         res.cookie("token", token, {
-            secure: false,
-            sameSite: "strict",
+            secure: true,
+            sameSite: "none",
             maxAge: 7 * 24 * 60 * 60 * 1000,  //7 day in milisecond
             httpOnly: true
         })
@@ -201,8 +201,8 @@ export const googleAuth = async (req, res) => {
         // if user already exist means we just create token (Signin complete)
         const token = genToken(user._id);
         res.cookie("token", token, {
-            secure: false,
-            sameSite: "strict",
+            secure: true,
+            sameSite: "none",
             maxAge: 7 * 24 * 60 * 60 * 1000,  //7 day in milisecond
             httpOnly: true
         })
