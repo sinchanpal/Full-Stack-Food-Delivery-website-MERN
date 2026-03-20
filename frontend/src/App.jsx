@@ -22,7 +22,8 @@ import UseUpdateLocation from './hooks/UseUpdateLocation'
 import TrackCustomerOrder from './pages/TrackCustomerOrder'
 import ShopDetails from './pages/ShopDetails'
 
-export const serverUrl = "http://localhost:8000"
+//using this url now frontend can talk to the backend live on render
+export const serverUrl = "https://bitehub-backend-42u0.onrender.com"  
 
 
 function App() {
