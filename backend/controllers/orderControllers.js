@@ -621,7 +621,9 @@ export const sendDeliveryOTP = async (req, res) => {
 
         return res.status(200).json({ message: `Delivery Otp is successfully send to ${order?.user?.fullName}` });
     } catch (error) {
-        return res.status(200).json({ message: "Error in sendDeliveryOTP conroller:" });
+
+        console.log("🚨 SEND OTP ERROR:", error);
+        return res.status(500).json({ message: "Error in sendDeliveryOTP conroller:" });
     }
 }
 
