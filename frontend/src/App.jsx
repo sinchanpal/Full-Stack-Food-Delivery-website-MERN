@@ -23,6 +23,10 @@ import TrackCustomerOrder from './pages/TrackCustomerOrder'
 import ShopDetails from './pages/ShopDetails'
 import { Toaster } from 'react-hot-toast';
 
+//Your local frontend (localhost:5173) will actually talk to your live Render database. This is great for testing quick UI changes!
+
+//If you want to test backend changes on your local computer, you just need to temporarily change that line in App.jsx back to export const serverUrl = "http://localhost:8000". (Just remember to change it back to Render before you push to GitHub!).
+
 //using this url now frontend can talk to the backend live on render
 export const serverUrl = "https://bitehub-backend-42u0.onrender.com";
 
