@@ -42,7 +42,7 @@ const DeliveryDashboard = () => {
       console.log(result.data);
 
       // Just tell the delivery boy to ask the customer!
-      toast.success("OTP sent to the Customer's screen! Ask them for the code.");
+      toast.success(<p>OTP sent to the Customer's screen! Ask them for the code.</p>, { duration: 10000 });
 
     } catch (error) {
       console.log("Error in handelSendOTP in DeliveryDashboard.jsx ", error);
@@ -63,7 +63,7 @@ const DeliveryDashboard = () => {
       setCurrentAcceptedOrder(null);
 
       // Optional: Give the delivery boy a nice success message!
-      toast.success("Order Delivered Successfully! Great job.", { duration: 4000 }); // Stays on screen for 4 seconds
+      toast.success(<p>Order Delivered Successfully! Great job.</p>, { duration: 10000 }); // Stays on screen for 4 seconds
 
       //Re-fetch available orders just in case new ones popped up while they were driving
       getDeliveryBoyAssignments();
