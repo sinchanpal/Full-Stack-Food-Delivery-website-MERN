@@ -28,7 +28,7 @@ const server = http.createServer(app);
 
 const io = new Server(server, {   //so now we convert our http server to a socket.io server by passing it as an argument to the Server constructor. This allows us to use socket.io's real-time communication features in our application.
     cors: {
-        origin: "http://localhost:5173",   // Allow the frontend URL
+        origin: process.env.CLIENT_URL || "http://localhost:5173",   // Allow the frontend URL
         credentials: true,                 // Allow cookies to be sent
         methods: ["GET", "POST", "DELETE"] // Allow specific HTTP methods
     }
@@ -36,11 +36,11 @@ const io = new Server(server, {   //so now we convert our http server to a socke
 
 socketHandler(io); //we call the socketHandler function and pass the io instance to it. This allows us to set up our socket.io event listeners and handlers in a separate file, keeping our code organized and modular. By doing this, we can easily manage our real-time communication logic without cluttering our main server file.
 
-app.set('io',io); //we set the io instance on the app object so that we can access it in our controllers and emit events to the clients when certain actions occur, such as when a new order is placed or when an order status is updated. By doing this, we can enable real-time updates in our application and provide a better user experience for our customers.
+app.set('io', io); //we set the io instance on the app object so that we can access it in our controllers and emit events to the clients when certain actions occur, such as when a new order is placed or when an order status is updated. By doing this, we can enable real-time updates in our application and provide a better user experience for our customers.
 
 // 2. Middleware
 app.use(cors({
-    origin: "http://localhost:5173", // Allow the frontend URL
+    origin: process.env.CLIENT_URL || "http://localhost:5173", // Allow the frontend URL
     credentials: true // Allow cookies to be sent
 }));
 app.use(express.json());
