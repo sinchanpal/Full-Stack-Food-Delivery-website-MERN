@@ -114,7 +114,7 @@ const Nav = () => {
                                         <span>Add Food Item</span>
                                     </button>
 
-                                    <button className='md:hidden flex items-center  p-2 cursor-pointer rounded-full bg-[#ff4d2d]/10 text-[#ff4d2d]'>
+                                    <button className='md:hidden flex items-center  p-2 cursor-pointer rounded-full bg-[#ff4d2d]/10 text-[#ff4d2d]' onClick={() => navigate('/add-item')}>
                                         <HiPlus size={20} />
                                     </button>
                                 </>}
