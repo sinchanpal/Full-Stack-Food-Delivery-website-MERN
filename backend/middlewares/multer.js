@@ -1,7 +1,14 @@
-import multer from "multer"
+import multer from "multer";
+import fs from "fs"; // Import Node's built-in file system module
+
+// Check if the 'public' folder exists. If not, create it automatically!
+const dir = './public';
+if (!fs.existsSync(dir)) {
+    fs.mkdirSync(dir, { recursive: true });
+}
 
 const storage = multer.diskStorage({
-    destination: (req, file, cb) => { //cb means call back
+    destination: (req, file, cb) => { // cb means callback
         cb(null, './public');
     },
     filename: (req, file, cb) => {
@@ -9,7 +16,7 @@ const storage = multer.diskStorage({
     }
 });
 
-export const upload = multer({storage});
+export const upload = multer({ storage });
 
 
 
